@@ -674,11 +674,13 @@
         }
 
         // Calculate marginal contracts per 1bp spread reduction (at current marketing)
+        // Uses central difference with smoothing window for stable derivative
         function calcContractsPerBp(spreadBps, marketingM) {
-            const delta = 1; // 1 bp reduction
-            const contractsNow = getContracts(spreadBps, marketingM);
-            const contractsLower = getContracts(spreadBps - delta, marketingM);
-            return contractsLower - contractsNow;
+            const delta = 25; // 25 bp window for stable derivative (avoids interpolation artifacts)
+            const contractsAbove = getContracts(Math.min(spreadBps + delta, 1800), marketingM);
+            const contractsBelow = getContracts(Math.max(spreadBps - delta, 900), marketingM);
+            const actualDelta = Math.min(spreadBps + delta, 1800) - Math.max(spreadBps - delta, 900);
+            return (contractsBelow - contractsAbove) / actualDelta;
         }
 
         function formatMoney(value) {
