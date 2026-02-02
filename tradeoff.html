@@ -540,13 +540,31 @@
                         <tbody id="frontierBody"></tbody>
                     </table>
                 </div>
+
+                <div class="frontier-section">
+                    <div class="frontier-title">Marketing Sensitivity: Max Contracts by Marketing Budget</div>
+                    <div class="frontier-description">For each marketing budget level, shows the optimal spread and maximum contracts achievable (Net Profit ≥ $0)</div>
+
+                    <table class="frontier-table" id="sensitivityTable">
+                        <thead>
+                            <tr>
+                                <th>Marketing Budget</th>
+                                <th>Optimal Spread</th>
+                                <th>PLP/Unit (Gross)</th>
+                                <th>Max Contracts</th>
+                                <th>Net Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensitivityBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // Data model
-        const spreadLevels = [900, 950, 1000, 1050, 1100, 1139, 1239, 1339, 1439, 1539, 1639, 1739, 1800];
+        const spreadLevels = [800, 850, 900, 950, 1000, 1050, 1100, 1139, 1239, 1339, 1439, 1539, 1639, 1739, 1800];
         const spendLevels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150];
 
         // Contract data - actual model data from 11.39%+, smoothly extrapolated below
@@ -554,6 +572,9 @@
         const contractsData = {
             // Extrapolated using model's elasticity pattern: ~36 contracts/bp at 1100, increasing ~3/bp per 50bps
             // Elasticity from model: 1239→1139 = 30.8/bp, so 1139→1100 ≈ 34/bp, 1100→1050 ≈ 37/bp, etc.
+            // Below 9%: elasticity continues to increase (~50/bp at 850, ~55/bp at 800)
+            800:  [33100, 36900, 39100, 40600, 42100, 43600, 45100, 45900, 46700, 48200, 49000, 50500, 52200],
+            850:  [30500, 34000, 36100, 37500, 38900, 40200, 41600, 42400, 43100, 44500, 45200, 46600, 48200],
             900:  [28100, 31300, 33200, 34500, 35800, 37000, 38300, 39000, 39600, 40900, 41600, 42900, 44400],
             950:  [25850, 28800, 30500, 31700, 32900, 34100, 35200, 35900, 36500, 37600, 38300, 39500, 40800],
             1000: [23750, 26400, 28000, 29100, 30200, 31300, 32400, 33000, 33500, 34600, 35200, 36300, 37500],
@@ -751,6 +772,7 @@
 
             updateChart();
             updateFrontierTable();
+            updateSensitivityTable();
         }
 
         function initChart() {
@@ -818,8 +840,8 @@
             }
 
             const datasets = [];
-            const displaySpreads = [950, 1000, 1100, 1150, 1200, 1300, 1400, 1500, 1600];
-            const colors = ['#0ea5e9', '#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444', '#dc2626', '#991b1b'];
+            const displaySpreads = [800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600];
+            const colors = ['#f472b6', '#ec4899', '#0ea5e9', '#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444', '#dc2626', '#991b1b'];
 
             displaySpreads.forEach((spread, i) => {
                 const plpGross = calcPLPGross(spread);
@@ -918,7 +940,7 @@
             const tbody = document.getElementById('frontierBody');
             tbody.innerHTML = '';
 
-            const displaySpreads = [900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1400, 1500, 1600, 1700];
+            const displaySpreads = [800, 850, 900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1400, 1500, 1600, 1700];
             let maxContracts = 0;
             let maxContractsSpread = 0;
 
@@ -956,6 +978,68 @@
             });
         }
 
+        function updateSensitivityTable() {
+            const tbody = document.getElementById('sensitivityBody');
+            tbody.innerHTML = '';
+
+            const marketingLevels = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 80, 100];
+
+            marketingLevels.forEach(marketing => {
+                // Find best spread for this marketing level
+                let bestSpread = 0;
+                let bestContracts = 0;
+                let bestNetProfit = -Infinity;
+
+                for (let spread = 800; spread <= 1700; spread += 25) {
+                    const plpGross = calcPLPGross(spread);
+                    if (plpGross <= 0) continue; // Skip unprofitable spreads
+
+                    const contracts = getContracts(spread, marketing);
+                    const netProfit = calcNetProfit(spread, marketing);
+
+                    if (netProfit >= 0 && contracts > bestContracts) {
+                        bestSpread = spread;
+                        bestContracts = contracts;
+                        bestNetProfit = netProfit;
+                    }
+                }
+
+                if (bestSpread === 0) {
+                    tbody.innerHTML += `
+                        <tr class="infeasible">
+                            <td>$${marketing}M</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                    `;
+                } else {
+                    const plpGross = calcPLPGross(bestSpread);
+                    const plpDisplay = '$' + (plpGross/1000).toFixed(1) + 'K';
+                    const isSelected = marketing === currentMarketing;
+
+                    tbody.innerHTML += `
+                        <tr class="${isSelected ? 'selected' : ''}" onclick="setMarketing(${marketing}, ${bestSpread})" style="cursor: pointer;">
+                            <td>$${marketing}M</td>
+                            <td>${(bestSpread/100).toFixed(2)}%${bestSpread < 1100 ? ' *' : ''}</td>
+                            <td style="color: ${plpGross < 3000 ? '#facc15' : '#4ade80'}">${plpDisplay}</td>
+                            <td>${bestContracts.toLocaleString()}</td>
+                            <td>${formatMoney(bestNetProfit)}</td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        function setMarketing(marketing, spread) {
+            currentMarketing = marketing;
+            currentSpread = spread;
+            document.getElementById('marketingSlider').value = marketing;
+            document.getElementById('spreadSlider').value = spread;
+            updateOutputs();
+        }
+
         function setSpread(spread) {
             currentSpread = spread;
             document.getElementById('spreadSlider').value = spread;
@@ -974,7 +1058,7 @@
             let bestSpread = 1175;
             let bestMarketing = 40;
 
-            for (let spread = 900; spread <= 1700; spread += 25) {
+            for (let spread = 800; spread <= 1700; spread += 25) {
                 const plpGross = calcPLPGross(spread);
                 if (plpGross > 0) {
                     const info = findMaxProfitableMarketing(spread);
