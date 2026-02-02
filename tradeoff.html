@@ -436,11 +436,11 @@
                             <span class="slider-label">Spread</span>
                             <span class="slider-value" id="spreadValue">11.75%</span>
                         </div>
-                        <input type="range" id="spreadSlider" min="900" max="1800" value="1175" step="25">
+                        <input type="range" id="spreadSlider" min="800" max="1800" value="1175" step="25">
                         <div class="slider-ticks">
-                            <span>9%</span>
-                            <span>12%</span>
-                            <span>15%</span>
+                            <span>8%</span>
+                            <span>11%</span>
+                            <span>14%</span>
                             <span>18%</span>
                         </div>
                     </div>
@@ -716,8 +716,8 @@
         function calcContractsPerBp(spreadBps, marketingM) {
             const delta = 25; // 25 bp window for stable derivative (avoids interpolation artifacts)
             const contractsAbove = getContracts(Math.min(spreadBps + delta, 1800), marketingM);
-            const contractsBelow = getContracts(Math.max(spreadBps - delta, 900), marketingM);
-            const actualDelta = Math.min(spreadBps + delta, 1800) - Math.max(spreadBps - delta, 900);
+            const contractsBelow = getContracts(Math.max(spreadBps - delta, 800), marketingM);
+            const actualDelta = Math.min(spreadBps + delta, 1800) - Math.max(spreadBps - delta, 800);
             return (contractsBelow - contractsAbove) / actualDelta;
         }
 
@@ -1107,10 +1107,10 @@
 
             // Contracts per 1bp spread reduction (orange) - varies by spread
             const spreadEfficiencyData = [];
-            for (let s = 900; s <= 1700; s += 25) {
+            for (let s = 800; s <= 1700; s += 25) {
                 const efficiency = calcContractsPerBp(s, currentMarketing);
-                // Map spread to equivalent x position for overlay (scale 900-1700 to 0-150)
-                const xPos = (s - 900) / (1700 - 900) * 150;
+                // Map spread to equivalent x position for overlay (scale 800-1700 to 0-150)
+                const xPos = (s - 800) / (1700 - 800) * 150;
                 spreadEfficiencyData.push({ x: xPos, y: efficiency, spread: s });
             }
             datasets.push({
@@ -1139,7 +1139,7 @@
 
             // Current position marker for spread
             const currentSpreadEff = calcContractsPerBp(currentSpread, currentMarketing);
-            const currentSpreadX = (currentSpread - 900) / (1700 - 900) * 150;
+            const currentSpreadX = (currentSpread - 800) / (1700 - 800) * 150;
             datasets.push({
                 label: 'Current Spread',
                 data: [{ x: currentSpreadX, y: currentSpreadEff }],
@@ -1157,12 +1157,12 @@
             chart.options.scales = {
                 x: {
                     type: 'linear',
-                    title: { display: true, text: 'Marketing ($M) / Spread (mapped 9%-17%)', color: '#8892b0' },
+                    title: { display: true, text: 'Marketing ($M) / Spread (mapped 8%-17%)', color: '#8892b0' },
                     ticks: {
                         color: '#8892b0',
                         callback: function(value) {
                             // Show both scales
-                            const spread = 900 + (value / 150) * 800;
+                            const spread = 800 + (value / 150) * 900;
                             return `$${value}M | ${(spread/100).toFixed(1)}%`;
                         }
                     },
