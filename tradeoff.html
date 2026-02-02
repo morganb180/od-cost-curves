@@ -333,6 +333,87 @@
             border-color: rgba(34, 197, 94, 0.5);
             color: #4ade80;
         }
+
+        .mode-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #8892b0;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .efficiency-readout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .efficiency-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .efficiency-card.highlight {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .efficiency-label {
+            font-size: 11px;
+            color: #8892b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .efficiency-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .efficiency-value.marketing {
+            color: #3b82f6;
+        }
+
+        .efficiency-value.spread {
+            color: #f59e0b;
+        }
+
+        .efficiency-detail {
+            font-size: 12px;
+            color: #8892b0;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 800px) {
+            .efficiency-readout {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -413,8 +494,33 @@
             </div>
 
             <div class="chart-panel">
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="modeContracts" onclick="setChartMode('contracts')">Contracts View</button>
+                    <button class="mode-btn" id="modeEfficiency" onclick="setChartMode('efficiency')">Marginal Efficiency</button>
+                </div>
+
                 <div class="chart-container">
                     <canvas id="mainChart"></canvas>
+                </div>
+
+                <div id="efficiencyPanel" style="display: none; margin-bottom: 24px;">
+                    <div class="efficiency-readout">
+                        <div class="efficiency-card">
+                            <div class="efficiency-label">Contracts per $1M Marketing</div>
+                            <div class="efficiency-value" id="contractsPerMillion">—</div>
+                            <div class="efficiency-detail" id="contractsPerMillionDetail">at current spend level</div>
+                        </div>
+                        <div class="efficiency-card">
+                            <div class="efficiency-label">Contracts per 1 bp Spread Reduction</div>
+                            <div class="efficiency-value" id="contractsPerBp">—</div>
+                            <div class="efficiency-detail" id="contractsPerBpDetail">at current spread level</div>
+                        </div>
+                        <div class="efficiency-card highlight">
+                            <div class="efficiency-label">Better Lever Right Now</div>
+                            <div class="efficiency-value" id="betterLever">—</div>
+                            <div class="efficiency-detail" id="betterLeverDetail">—</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="frontier-section">
@@ -553,6 +659,23 @@
         let currentSpread = 1175;
         let currentMarketing = 40;
         let chart = null;
+        let chartMode = 'contracts';
+
+        // Calculate marginal contracts per $1M marketing (at current spread)
+        function calcContractsPerMillion(spreadBps, marketingM) {
+            const delta = 1; // $1M increment
+            const contractsNow = getContracts(spreadBps, marketingM);
+            const contractsNext = getContracts(spreadBps, marketingM + delta);
+            return contractsNext - contractsNow;
+        }
+
+        // Calculate marginal contracts per 1bp spread reduction (at current marketing)
+        function calcContractsPerBp(spreadBps, marketingM) {
+            const delta = 1; // 1 bp reduction
+            const contractsNow = getContracts(spreadBps, marketingM);
+            const contractsLower = getContracts(spreadBps - delta, marketingM);
+            return contractsLower - contractsNow;
+        }
 
         function formatMoney(value) {
             const absValue = Math.abs(value);
@@ -652,8 +775,23 @@
             updateChart();
         }
 
+        function setChartMode(mode) {
+            chartMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+
+            document.getElementById('efficiencyPanel').style.display = mode === 'efficiency' ? 'block' : 'none';
+
+            updateChart();
+        }
+
         function updateChart() {
             if (!chart) return;
+
+            if (chartMode === 'efficiency') {
+                updateEfficiencyChart();
+                return;
+            }
 
             const datasets = [];
             const displaySpreads = [1000, 1100, 1200, 1300, 1400, 1500, 1600];
@@ -730,6 +868,25 @@
             });
 
             chart.data.datasets = datasets;
+
+            // Reset scales for contracts view
+            chart.options.scales = {
+                x: {
+                    type: 'linear',
+                    title: { display: true, text: 'Marketing Spend ($M)', color: '#8892b0' },
+                    ticks: { color: '#8892b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    min: 0,
+                    max: 160
+                },
+                y: {
+                    type: 'linear',
+                    title: { display: true, text: 'Contracts', color: '#8892b0' },
+                    ticks: { color: '#8892b0', callback: v => v.toLocaleString() },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                }
+            };
+
             chart.update();
         }
 
@@ -819,6 +976,143 @@
             document.getElementById('spreadSlider').value = currentSpread;
             document.getElementById('marketingSlider').value = currentMarketing;
             updateOutputs();
+        }
+
+        function updateEfficiencyChart() {
+            const datasets = [];
+
+            // Contracts per $1M marketing (blue) - varies by marketing spend
+            const marketingEfficiencyData = [];
+            for (let m = 0; m <= 150; m += 5) {
+                const efficiency = calcContractsPerMillion(currentSpread, m);
+                marketingEfficiencyData.push({ x: m, y: efficiency });
+            }
+            datasets.push({
+                label: 'Contracts per $1M Marketing',
+                data: marketingEfficiencyData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: true,
+                yAxisID: 'y'
+            });
+
+            // Contracts per 1bp spread reduction (orange) - varies by spread
+            const spreadEfficiencyData = [];
+            for (let s = 900; s <= 1700; s += 25) {
+                const efficiency = calcContractsPerBp(s, currentMarketing);
+                // Map spread to equivalent x position for overlay (scale 900-1700 to 0-150)
+                const xPos = (s - 900) / (1700 - 900) * 150;
+                spreadEfficiencyData.push({ x: xPos, y: efficiency, spread: s });
+            }
+            datasets.push({
+                label: 'Contracts per 1bp Spread Reduction',
+                data: spreadEfficiencyData,
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: true,
+                yAxisID: 'y2'
+            });
+
+            // Current position marker for marketing
+            const currentMarketingEff = calcContractsPerMillion(currentSpread, currentMarketing);
+            datasets.push({
+                label: 'Current Marketing',
+                data: [{ x: currentMarketing, y: currentMarketingEff }],
+                backgroundColor: '#3b82f6',
+                borderColor: '#fff',
+                borderWidth: 2,
+                pointRadius: 10,
+                showLine: false,
+                yAxisID: 'y'
+            });
+
+            // Current position marker for spread
+            const currentSpreadEff = calcContractsPerBp(currentSpread, currentMarketing);
+            const currentSpreadX = (currentSpread - 900) / (1700 - 900) * 150;
+            datasets.push({
+                label: 'Current Spread',
+                data: [{ x: currentSpreadX, y: currentSpreadEff }],
+                backgroundColor: '#f59e0b',
+                borderColor: '#fff',
+                borderWidth: 2,
+                pointRadius: 10,
+                showLine: false,
+                yAxisID: 'y2'
+            });
+
+            chart.data.datasets = datasets;
+
+            // Update scales for dual axis
+            chart.options.scales = {
+                x: {
+                    type: 'linear',
+                    title: { display: true, text: 'Marketing ($M) / Spread (mapped 9%-17%)', color: '#8892b0' },
+                    ticks: {
+                        color: '#8892b0',
+                        callback: function(value) {
+                            // Show both scales
+                            const spread = 900 + (value / 150) * 800;
+                            return `$${value}M | ${(spread/100).toFixed(1)}%`;
+                        }
+                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    min: 0,
+                    max: 150
+                },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    title: { display: true, text: 'Contracts per $1M', color: '#3b82f6' },
+                    ticks: { color: '#3b82f6' },
+                    grid: { color: 'rgba(59, 130, 246, 0.1)' }
+                },
+                y2: {
+                    type: 'linear',
+                    position: 'right',
+                    title: { display: true, text: 'Contracts per 1bp', color: '#f59e0b' },
+                    ticks: { color: '#f59e0b' },
+                    grid: { display: false }
+                }
+            };
+
+            chart.update();
+
+            // Update efficiency readout
+            document.getElementById('contractsPerMillion').textContent = currentMarketingEff.toFixed(0);
+            document.getElementById('contractsPerMillion').className = 'efficiency-value marketing';
+            document.getElementById('contractsPerMillionDetail').textContent = `at $${currentMarketing}M spend, ${(currentSpread/100).toFixed(2)}% spread`;
+
+            document.getElementById('contractsPerBp').textContent = currentSpreadEff.toFixed(1);
+            document.getElementById('contractsPerBp').className = 'efficiency-value spread';
+            document.getElementById('contractsPerBpDetail').textContent = `at ${(currentSpread/100).toFixed(2)}% spread, $${currentMarketing}M spend`;
+
+            // Compare: which is better?
+            // To compare fairly: what's the $ cost of 1bp spread reduction?
+            // 1bp = $37.50 per contract. At current contracts, that's: contracts × $37.50
+            const currentContracts = getContracts(currentSpread, currentMarketing);
+            const costOf1bp = currentContracts * 37.50; // annual margin cost
+            const contractsFromSpread = currentSpreadEff;
+            const costPerContractFromSpread = contractsFromSpread > 0 ? costOf1bp / contractsFromSpread : Infinity;
+
+            // Marketing: $1M gets currentMarketingEff contracts
+            const costPerContractFromMarketing = currentMarketingEff > 0 ? 1000000 / currentMarketingEff : Infinity;
+
+            const betterLeverEl = document.getElementById('betterLever');
+            const betterLeverDetailEl = document.getElementById('betterLeverDetail');
+
+            if (costPerContractFromMarketing < costPerContractFromSpread) {
+                betterLeverEl.textContent = 'Marketing';
+                betterLeverEl.className = 'efficiency-value marketing';
+                betterLeverDetailEl.textContent = `$${(costPerContractFromMarketing/1000).toFixed(1)}K/contract vs $${(costPerContractFromSpread/1000).toFixed(1)}K from spread`;
+            } else {
+                betterLeverEl.textContent = 'Spread';
+                betterLeverEl.className = 'efficiency-value spread';
+                betterLeverDetailEl.textContent = `$${(costPerContractFromSpread/1000).toFixed(1)}K/contract vs $${(costPerContractFromMarketing/1000).toFixed(1)}K from marketing`;
+            }
         }
 
         // Event listeners
