@@ -344,7 +344,7 @@
         <div class="main-grid">
             <div class="controls-panel">
                 <div class="constraint-box">
-                    <span class="label">Constraints:</span> Marketing ≥ $10M, Net Profit ≥ $0
+                    <span class="label">Constraint:</span> Net Profit ≥ $0
                 </div>
 
                 <div class="control-section">
@@ -369,9 +369,9 @@
                             <span class="slider-label">Marketing Spend</span>
                             <span class="slider-value" id="marketingValue">$40M</span>
                         </div>
-                        <input type="range" id="marketingSlider" min="10" max="150" value="40" step="5">
+                        <input type="range" id="marketingSlider" min="0" max="150" value="40" step="5">
                         <div class="slider-ticks">
-                            <span>$10M</span>
+                            <span>$0</span>
                             <span>$50M</span>
                             <span>$100M</span>
                             <span>$150M</span>
@@ -514,7 +514,7 @@
         }
 
         // Minimum marketing spend
-        const MIN_MARKETING = 10;
+        const MIN_MARKETING = 0;
 
         // Find max profitable marketing for a given spread (starting from MIN_MARKETING)
         function findMaxProfitableMarketing(spreadBps) {
@@ -638,7 +638,7 @@
                             title: { display: true, text: 'Marketing Spend ($M)', color: '#8892b0' },
                             ticks: { color: '#8892b0' },
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            min: 10,
+                            min: 0,
                             max: 160
                         },
                         y: {
