@@ -445,19 +445,24 @@
 
         <div class="insights-section">
             <div class="insight-card">
-                <div class="insight-label">Contracts at 11.39% spread, $40M</div>
-                <div class="insight-value">23,514</div>
-                <div class="insight-detail">lowest spread level in model</div>
+                <div class="insight-label">Breakeven Spread</div>
+                <div class="insight-value">~10.0%</div>
+                <div class="insight-detail">PLP = $0 below this level</div>
             </div>
             <div class="insight-card">
-                <div class="insight-label">mCAC Range at 11.39% Spread</div>
-                <div class="insight-value">$4.8K - $53K</div>
-                <div class="insight-detail">per incremental contract ($0-5M to $145-150M)</div>
+                <div class="insight-label">PLP at 11.75% Spread</div>
+                <div class="insight-value">$6.4K</div>
+                <div class="insight-detail">per contract (170 bps)</div>
             </div>
             <div class="insight-card">
-                <div class="insight-label">Max Contracts (11.39% spread, $150M)</div>
-                <div class="insight-value">29,067</div>
-                <div class="insight-detail">vs 9,734 at 17.39% spread</div>
+                <div class="insight-label">PLP at 9% Spread</div>
+                <div class="insight-value" style="color: #f87171;">-$3.9K</div>
+                <div class="insight-detail">LOSS per contract</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Max Contracts (9% spread, $150M)</div>
+                <div class="insight-value">42,000*</div>
+                <div class="insight-detail">*extrapolated, but unprofitable</div>
             </div>
         </div>
 
@@ -465,7 +470,7 @@
             <div class="chart-header">
                 <div>
                     <div class="chart-title">Contracts by Marketing Spend</div>
-                    <div class="chart-description">Click legend items to show/hide curves. Lower spreads (green) = higher conversion. Your current ~11.27% spread is closest to the 11.39% curve.</div>
+                    <div class="chart-description">Click legend items to show/hide curves. <span style="color:#0891b2;">Cyan curves (9-11%)</span> are extrapolated and below/near breakeven. <span style="color:#22c55e;">Green curves (11.39%+)</span> are from model data.</div>
                 </div>
                 <div class="legend-toggles" id="legendToggles"></div>
             </div>
@@ -478,7 +483,7 @@
             <div class="table-header">
                 <div>
                     <div class="table-title">Marginal CAC by $5M Tranche</div>
-                    <div class="table-description">Cost per incremental contract at each spend level. <span class="mcac-low">Green</span> = ≤2% of home price, <span class="mcac-med">Yellow</span> = 2-4%, <span class="mcac-high">Red</span> = &gt;4%</div>
+                    <div class="table-description">PLP = Per Listing Profit at that spread. mCAC colors: <span class="mcac-low">Green</span> = ≤2% of home price, <span class="mcac-med">Yellow</span> = 2-4%, <span class="mcac-high">Red</span> = &gt;4%. Rows marked * are extrapolated.</div>
                 </div>
             </div>
             <table id="mcacTable"></table>
@@ -563,25 +568,39 @@
 
     <script>
         // Raw data from GTM sensitivity table (Base 2026)
-        const spreadLevels = [1139, 1239, 1339, 1439, 1539, 1639, 1739]; // basis points
+        // Extended to include extrapolated 9-11% spread range
+        const spreadLevels = [900, 950, 1000, 1050, 1100, 1139, 1239, 1339, 1439, 1539, 1639, 1739]; // basis points
         const spendLevelsRaw = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150]; // millions
 
         // Contracts matrix [spend][spread] from GTM table
+        // Values for 900-1100 bps are extrapolated using the model's elasticity patterns
         const contractsRaw = {
-            0:   [18485, 15404, 12837, 10698, 8915, 7429, 6191],
-            10:  [20581, 17151, 14292, 11910, 9925, 8271, 6892],
-            20:  [21838, 18198, 15165, 12638, 10531, 8776, 7313],
-            30:  [22676, 18897, 15747, 13123, 10936, 9113, 7594],
-            40:  [23514, 19595, 16329, 13608, 11340, 9450, 7875],
-            50:  [24352, 20293, 16911, 14093, 11744, 9787, 8156],
-            60:  [25190, 20992, 17493, 14578, 12148, 10123, 8436],
-            70:  [25609, 21341, 17784, 14820, 12350, 10292, 8577],
-            80:  [26028, 21690, 18075, 15063, 12552, 10460, 8717],
-            90:  [26867, 22389, 18657, 15548, 12956, 10797, 8998],
-            100: [27286, 22738, 18948, 15790, 13159, 10965, 9138],
-            120: [28124, 23436, 19530, 16275, 13563, 11302, 9419],
-            150: [29067, 24222, 20185, 16821, 14017, 11681, 9734]
+            0:   [26800, 24600, 22600, 20700, 19100, 18485, 15404, 12837, 10698, 8915, 7429, 6191],
+            10:  [29700, 27200, 25000, 22900, 21100, 20581, 17151, 14292, 11910, 9925, 8271, 6892],
+            20:  [31500, 28900, 26500, 24300, 22400, 21838, 18198, 15165, 12638, 10531, 8776, 7313],
+            30:  [32700, 30000, 27500, 25200, 23200, 22676, 18897, 15747, 13123, 10936, 9113, 7594],
+            40:  [33900, 31100, 28500, 26200, 24100, 23514, 19595, 16329, 13608, 11340, 9450, 7875],
+            50:  [35000, 32100, 29500, 27000, 24900, 24352, 20293, 16911, 14093, 11744, 9787, 8156],
+            60:  [36200, 33200, 30500, 28000, 25800, 25190, 20992, 17493, 14578, 12148, 10123, 8436],
+            70:  [36800, 33800, 31000, 28400, 26200, 25609, 21341, 17784, 14820, 12350, 10292, 8577],
+            80:  [37500, 34400, 31600, 29000, 26700, 26028, 21690, 18075, 15063, 12552, 10460, 8717],
+            90:  [38700, 35500, 32600, 29900, 27500, 26867, 22389, 18657, 15548, 12956, 10797, 8998],
+            100: [39300, 36100, 33100, 30400, 28000, 27286, 22738, 18948, 15790, 13159, 10965, 9138],
+            120: [40600, 37200, 34200, 31400, 28900, 28124, 23436, 19530, 16275, 13563, 11302, 9419],
+            150: [42000, 38500, 35400, 32500, 29900, 29067, 24222, 20185, 16821, 14017, 11681, 9734]
         };
+
+        // Unit economics from Per-Unit Spread Economics model
+        // At 11.75% spread: PLP = $6,400 (170 bps)
+        // Each 100 bps = $3,750 at $375K ASP
+        const baselineSpread = 1175; // bps
+        const baselinePLP = 6400; // dollars
+        const bpsValue = 37.50; // $ per bps at $375K ASP
+
+        function calcPLP(spreadBps) {
+            const deltaBps = spreadBps - baselineSpread;
+            return baselinePLP + (deltaBps * bpsValue);
+        }
 
         // State
         let displayMode = 'dollar';
@@ -665,15 +684,24 @@
         }
 
         // Colors for spread levels (from green to red)
+        // Extended for 9-17% range
         const colors = [
-            '#22c55e', // 1139 - greenest (best conversion)
-            '#84cc16', // 1239
-            '#eab308', // 1339
-            '#f97316', // 1439
-            '#ef4444', // 1539
-            '#dc2626', // 1639 - current
-            '#991b1b'  // 1739
+            '#06b6d4', // 900 - cyan (extrapolated, below breakeven)
+            '#0891b2', // 950 - darker cyan (extrapolated, below breakeven)
+            '#0e7490', // 1000 - teal (extrapolated, near breakeven)
+            '#14b8a6', // 1050 - teal-green (extrapolated)
+            '#10b981', // 1100 - emerald (extrapolated)
+            '#22c55e', // 1139 - green (model data starts)
+            '#84cc16', // 1239 - lime
+            '#eab308', // 1339 - yellow
+            '#f97316', // 1439 - orange
+            '#ef4444', // 1539 - red
+            '#dc2626', // 1639 - darker red
+            '#991b1b'  // 1739 - darkest red
         ];
+
+        // Mark which spreads are extrapolated vs from model
+        const extrapolatedSpreads = [900, 950, 1000, 1050, 1100];
 
         // Chart.js setup
         const ctx = document.getElementById('mainChart').getContext('2d');
@@ -1058,7 +1086,7 @@
 
             // mCAC Table
             const mcacTableEl = document.getElementById('mcacTable');
-            let mcacHeaderHtml = '<thead><tr><th>Spread</th>';
+            let mcacHeaderHtml = '<thead><tr><th>Spread</th><th>PLP</th>';
             for (let i = 1; i < spendLevels5M.length; i++) {
                 mcacHeaderHtml += `<th>$${spendLevels5M[i-1]}-${spendLevels5M[i]}M</th>`;
             }
@@ -1067,8 +1095,13 @@
             let mcacBodyHtml = '<tbody>';
             allSpreads.forEach((spread) => {
                 const isCustom = customSpreads.includes(spread);
+                const isExtrapolated = extrapolatedSpreads.includes(spread);
                 const color = isCustom ? getColorForSpread(spread) : colors[spreadLevels.indexOf(spread)];
-                mcacBodyHtml += `<tr><td><span class="spread-label"><span class="spread-dot" style="background: ${color}"></span>${(spread/100).toFixed(2)}%${isCustom ? ' ★' : ''}</span></td>`;
+                const plp = calcPLP(spread);
+                const plpDisplay = plp >= 0 ? '$' + (plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(plp)/1000).toFixed(1) + 'K';
+                const plpClass = plp >= 0 ? (plp > 5000 ? 'mcac-low' : 'mcac-med') : 'mcac-high';
+                const extraMark = isExtrapolated ? ' *' : '';
+                mcacBodyHtml += `<tr><td><span class="spread-label"><span class="spread-dot" style="background: ${color}"></span>${(spread/100).toFixed(2)}%${isCustom ? ' ★' : ''}${extraMark}</span></td><td class="${plpClass}">${plpDisplay}</td>`;
 
                 const contracts = interpolatedData[spread];
                 for (let i = 1; i < spendLevels5M.length; i++) {
@@ -1083,7 +1116,7 @@
 
             // iCAC Table
             const icacTableEl = document.getElementById('icacTable');
-            let icacHeaderHtml = '<thead><tr><th>Spread</th>';
+            let icacHeaderHtml = '<thead><tr><th>Spread</th><th>PLP</th>';
             for (let i = 1; i < spendLevels5M.length; i++) {
                 icacHeaderHtml += `<th>$${spendLevels5M[i]}M</th>`;
             }
@@ -1092,8 +1125,13 @@
             let icacBodyHtml = '<tbody>';
             allSpreads.forEach((spread) => {
                 const isCustom = customSpreads.includes(spread);
+                const isExtrapolated = extrapolatedSpreads.includes(spread);
                 const color = isCustom ? getColorForSpread(spread) : colors[spreadLevels.indexOf(spread)];
-                icacBodyHtml += `<tr><td><span class="spread-label"><span class="spread-dot" style="background: ${color}"></span>${(spread/100).toFixed(2)}%${isCustom ? ' ★' : ''}</span></td>`;
+                const plp = calcPLP(spread);
+                const plpDisplay = plp >= 0 ? '$' + (plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(plp)/1000).toFixed(1) + 'K';
+                const plpClass = plp >= 0 ? (plp > 5000 ? 'mcac-low' : 'mcac-med') : 'mcac-high';
+                const extraMark = isExtrapolated ? ' *' : '';
+                icacBodyHtml += `<tr><td><span class="spread-label"><span class="spread-dot" style="background: ${color}"></span>${(spread/100).toFixed(2)}%${isCustom ? ' ★' : ''}${extraMark}</span></td><td class="${plpClass}">${plpDisplay}</td>`;
 
                 const contracts = interpolatedData[spread];
                 const baseContracts = contracts[0];
