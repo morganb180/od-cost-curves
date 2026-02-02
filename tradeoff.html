@@ -344,7 +344,7 @@
         <div class="main-grid">
             <div class="controls-panel">
                 <div class="constraint-box">
-                    <span class="label">Constraint:</span> Net Profit ≥ $0
+                    <span class="label">Constraints:</span> Marketing ≥ $10M, Net Profit ≥ $0
                 </div>
 
                 <div class="control-section">
@@ -369,9 +369,9 @@
                             <span class="slider-label">Marketing Spend</span>
                             <span class="slider-value" id="marketingValue">$40M</span>
                         </div>
-                        <input type="range" id="marketingSlider" min="0" max="150" value="40" step="5">
+                        <input type="range" id="marketingSlider" min="10" max="150" value="40" step="5">
                         <div class="slider-ticks">
-                            <span>$0</span>
+                            <span>$10M</span>
                             <span>$50M</span>
                             <span>$100M</span>
                             <span>$150M</span>
@@ -513,15 +513,24 @@
             return (contracts * plp) - (marketingM * 1000000);
         }
 
-        // Find max profitable marketing for a given spread
+        // Minimum marketing spend
+        const MIN_MARKETING = 10;
+
+        // Find max profitable marketing for a given spread (starting from MIN_MARKETING)
         function findMaxProfitableMarketing(spreadBps) {
             const plp = calcPLP(spreadBps);
-            if (plp <= 0) return { marketing: 0, contracts: getContracts(spreadBps, 0), netProfit: getContracts(spreadBps, 0) * plp };
+            const minContracts = getContracts(spreadBps, MIN_MARKETING);
+            const minNetProfit = (minContracts * plp) - (MIN_MARKETING * 1000000);
 
-            let maxMarketing = 0;
-            let maxContracts = getContracts(spreadBps, 0);
+            // Check if even minimum marketing is unprofitable
+            if (minNetProfit < 0) {
+                return { marketing: MIN_MARKETING, contracts: minContracts, netProfit: minNetProfit, feasible: false };
+            }
 
-            for (let m = 0; m <= 200; m += 1) {
+            let maxMarketing = MIN_MARKETING;
+            let maxContracts = minContracts;
+
+            for (let m = MIN_MARKETING; m <= 200; m += 1) {
                 const contracts = getContracts(spreadBps, m);
                 const netProfit = (contracts * plp) - (m * 1000000);
                 if (netProfit >= 0) {
@@ -535,7 +544,8 @@
             return {
                 marketing: maxMarketing,
                 contracts: maxContracts,
-                netProfit: (maxContracts * plp) - (maxMarketing * 1000000)
+                netProfit: (maxContracts * plp) - (maxMarketing * 1000000),
+                feasible: true
             };
         }
 
@@ -628,6 +638,7 @@
                             title: { display: true, text: 'Marketing Spend ($M)', color: '#8892b0' },
                             ticks: { color: '#8892b0' },
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            min: 10,
                             max: 160
                         },
                         y: {
@@ -654,10 +665,11 @@
 
                 // Profitable region (solid)
                 const profitableData = [];
-                for (let m = 0; m <= maxInfo.marketing; m += 5) {
+                const startM = Math.max(MIN_MARKETING, 10);
+                for (let m = startM; m <= maxInfo.marketing; m += 5) {
                     profitableData.push({ x: m, y: getContracts(spread, m) });
                 }
-                if (maxInfo.marketing % 5 !== 0) {
+                if (maxInfo.marketing % 5 !== 0 && maxInfo.marketing > startM) {
                     profitableData.push({ x: maxInfo.marketing, y: maxInfo.contracts });
                 }
 
@@ -731,13 +743,10 @@
 
             // First pass: find max
             displaySpreads.forEach(spread => {
-                const plp = calcPLP(spread);
-                if (plp > 0) {
-                    const info = findMaxProfitableMarketing(spread);
-                    if (info.contracts > maxContracts) {
-                        maxContracts = info.contracts;
-                        maxContractsSpread = spread;
-                    }
+                const info = findMaxProfitableMarketing(spread);
+                if (info.feasible && info.contracts > maxContracts) {
+                    maxContracts = info.contracts;
+                    maxContractsSpread = spread;
                 }
             });
 
@@ -746,7 +755,7 @@
                 const info = findMaxProfitableMarketing(spread);
                 const isSelected = Math.abs(spread - currentSpread) < 30;
                 const isMax = spread === maxContractsSpread;
-                const isInfeasible = plp <= 0;
+                const isInfeasible = !info.feasible;
 
                 const plpDisplay = plp >= 0 ? '$' + (plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(plp)/1000).toFixed(1) + 'K';
 
