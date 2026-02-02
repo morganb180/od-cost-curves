@@ -2,6 +2,8 @@
 
 Interactive visualization of marketing spend vs contracts with diminishing returns analysis.
 
+**[View Key Findings →](FINDINGS.md)**
+
 ## Features
 
 - **Diminishing Returns Curves**: 7 spread levels showing contracts by marketing spend
