@@ -847,13 +847,12 @@
                 const plpGross = calcPLPGross(spread);
                 const maxInfo = findMaxProfitableMarketing(spread);
 
-                // Profitable region (solid)
+                // Profitable region (solid) - start from $0
                 const profitableData = [];
-                const startM = Math.max(MIN_MARKETING, 10);
-                for (let m = startM; m <= maxInfo.marketing; m += 5) {
+                for (let m = 0; m <= maxInfo.marketing; m += 5) {
                     profitableData.push({ x: m, y: getContracts(spread, m) });
                 }
-                if (maxInfo.marketing % 5 !== 0 && maxInfo.marketing > startM) {
+                if (maxInfo.marketing % 5 !== 0 && maxInfo.marketing > 0) {
                     profitableData.push({ x: maxInfo.marketing, y: maxInfo.contracts });
                 }
 
