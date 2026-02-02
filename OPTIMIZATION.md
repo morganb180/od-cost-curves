@@ -41,7 +41,11 @@ Holding all other costs constant, PLP at different spreads:
 | 16.00% | 1600 | $22,338 | +$15,938 |
 | 17.00% | 1700 | $26,088 | +$19,688 |
 
-**Critical finding:** Breakeven spread is ~10.04%. Below this, every contract loses money regardless of volume.
+**Critical finding:** Breakeven spread depends on marketing spend:
+- With baseline marketing (70 bps / ~$2,600/contract): ~10.04%
+- With $0 marketing: ~9.35%
+
+Below these thresholds, every contract loses money regardless of volume.
 
 ---
 
@@ -201,25 +205,28 @@ At 13% → 12% spread:
 
 ## Critical Constraints
 
-1. **Breakeven spread is ~10%** - Below this, every contract loses money
+1. **Breakeven spread varies with marketing** - ~10% with baseline marketing, ~9.35% with $0 marketing
 2. **Contracts are capped by spread** - At 17% spread, max ~10K contracts regardless of marketing
 3. **Marketing ROI drops sharply above $60M** - Diminishing returns accelerate
 4. **Spread has higher profit leverage than volume** - 100 bps = $3,750/contract vs ~$1,500 profit impact from 1,000 more contracts
+5. **Lower spreads become viable with reduced marketing** - 9.5% spread + $16M marketing can achieve ~30K contracts profitably
 
 ---
 
 ## Recommendation
 
-**Do NOT trade marketing dollars for spread subsidy below 12%.**
+**Consider the full spread-marketing tradeoff surface.**
 
-The math doesn't work:
-- Each 100 bps below 12% costs $3,750/contract in margin
-- The volume gains don't offset the margin loss
-- You hit profitability danger zone below 11%
+Key insights:
+- Maximum contracts (~35K) achievable at 11% spread with $200M marketing
+- Lower spreads (9.5-10.5%) are viable with reduced marketing spend
+- The baseline PLP includes $2,600 marketing allocation - reducing marketing adds this back to unit economics
 
-**Instead:**
-1. Set spread at 12-13% for balance of volume and margin
-2. Allocate $40-60M to marketing (efficient zone)
-3. Use spread tactically (market-by-market) rather than blanket reduction
-4. Reserve spread subsidies for high-LTV or strategic segments only
+**Strategic options:**
+1. **Max volume path:** 11% spread + $200M marketing → ~35K contracts, $19M profit
+2. **Balanced path:** 12-13% spread + $40-60M marketing → ~24-29K contracts, $90-130M profit
+3. **Low marketing path:** 9.5-10% spread + $16-80M marketing → ~30-34K contracts, $0-1M profit
+4. **High margin path:** 14-15% spread + $40M marketing → ~16-20K contracts, $150M+ profit
+
+Use spread tactically (market-by-market) and consider marketing efficiency at each spend level.
 

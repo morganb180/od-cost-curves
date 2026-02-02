@@ -593,16 +593,28 @@
         };
 
         // Unit economics from Per-Unit Spread Economics model
-        // At 11.75% spread: PLP = $6,400 (170 bps)
+        // At 11.75% spread: PLP = $6,400 (170 bps) - this INCLUDES -$2,600 marketing allocation (70 bps)
         // Each 100 bps = $3,750 at $375K ASP
         const baselineSpread = 1175; // bps
-        const baselinePLP = 6400; // dollars
+        const baselinePLP = 6400; // dollars (includes -$2,600 marketing)
         const bpsValue = 37.50; // $ per bps at $375K ASP
+        const baselineMarketingPerContract = 2600; // embedded in baseline PLP
 
         function calcPLP(spreadBps) {
+            // Returns PLP with baseline marketing allocation embedded
             const deltaBps = spreadBps - baselineSpread;
             return baselinePLP + (deltaBps * bpsValue);
         }
+
+        function calcPLPGross(spreadBps) {
+            // Returns PLP BEFORE marketing allocation (add back the embedded $2,600)
+            // Use this when calculating net profit with explicit marketing spend
+            return calcPLP(spreadBps) + baselineMarketingPerContract;
+        }
+
+        // Breakeven spreads:
+        // - With baseline marketing (70 bps): ~10.04% (PLP = $0)
+        // - With $0 marketing: ~9.35% (PLP gross = $0)
 
         // State
         let displayMode = 'dollar';
