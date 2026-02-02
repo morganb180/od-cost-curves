@@ -571,11 +571,18 @@
 
         // Unit economics
         const baselineSpread = 1175;
-        const baselinePLP = 6400;
+        const baselinePLP = 6400;  // This already includes -$2,600 marketing allocation (70 bps)
         const bpsValue = 37.50;
+        const baselineMarketingPerContract = 2600;  // Embedded in baseline PLP
 
         function calcPLP(spreadBps) {
+            // Returns PLP at spread level (with baseline marketing embedded)
             return baselinePLP + (spreadBps - baselineSpread) * bpsValue;
+        }
+
+        function calcPLPGross(spreadBps) {
+            // Returns PLP before marketing allocation (add back the embedded $2,600)
+            return calcPLP(spreadBps) + baselineMarketingPerContract;
         }
 
         function lerp(a, b, t) {
@@ -619,8 +626,18 @@
 
         function calcNetProfit(spreadBps, marketingM) {
             const contracts = getContracts(spreadBps, marketingM);
-            const plp = calcPLP(spreadBps);
-            return (contracts * plp) - (marketingM * 1000000);
+            // Use gross PLP (before marketing) then subtract actual marketing spend
+            const plpGross = calcPLPGross(spreadBps);
+            return (contracts * plpGross) - (marketingM * 1000000);
+        }
+
+        function calcPLPEffective(spreadBps, marketingM) {
+            // Effective PLP per contract after marketing allocation
+            const contracts = getContracts(spreadBps, marketingM);
+            if (contracts === 0) return 0;
+            const plpGross = calcPLPGross(spreadBps);
+            const marketingPerContract = (marketingM * 1000000) / contracts;
+            return plpGross - marketingPerContract;
         }
 
         // Minimum marketing spend
@@ -628,12 +645,12 @@
 
         // Find max profitable marketing for a given spread (starting from MIN_MARKETING)
         function findMaxProfitableMarketing(spreadBps) {
-            const plp = calcPLP(spreadBps);
+            const plpGross = calcPLPGross(spreadBps);
             const minContracts = getContracts(spreadBps, MIN_MARKETING);
-            const minNetProfit = (minContracts * plp) - (MIN_MARKETING * 1000000);
+            const minNetProfit = (minContracts * plpGross) - (MIN_MARKETING * 1000000);
 
-            // Check if even minimum marketing is unprofitable
-            if (minNetProfit < 0) {
+            // Check if even minimum marketing is unprofitable (gross PLP negative)
+            if (plpGross < 0) {
                 return { marketing: MIN_MARKETING, contracts: minContracts, netProfit: minNetProfit, feasible: false };
             }
 
@@ -642,7 +659,7 @@
 
             for (let m = MIN_MARKETING; m <= 200; m += 1) {
                 const contracts = getContracts(spreadBps, m);
-                const netProfit = (contracts * plp) - (m * 1000000);
+                const netProfit = (contracts * plpGross) - (m * 1000000);
                 if (netProfit >= 0) {
                     maxMarketing = m;
                     maxContracts = contracts;
@@ -654,7 +671,7 @@
             return {
                 marketing: maxMarketing,
                 contracts: maxContracts,
-                netProfit: (maxContracts * plp) - (maxMarketing * 1000000),
+                netProfit: (maxContracts * plpGross) - (maxMarketing * 1000000),
                 feasible: true
             };
         }
@@ -693,9 +710,10 @@
 
         function updateOutputs() {
             const contracts = getContracts(currentSpread, currentMarketing);
-            const plp = calcPLP(currentSpread);
-            const grossProfit = contracts * plp;
-            const netProfit = grossProfit - (currentMarketing * 1000000);
+            const plpGross = calcPLPGross(currentSpread);
+            const netProfit = (contracts * plpGross) - (currentMarketing * 1000000);
+            // Effective PLP = gross PLP minus marketing cost per contract
+            const plpEffective = contracts > 0 ? plpGross - (currentMarketing * 1000000 / contracts) : plpGross;
             const isProfitable = netProfit >= 0;
 
             // Update sliders display
@@ -717,10 +735,10 @@
                 statusBadge.textContent = '✗ Unprofitable';
             }
 
-            // PLP
-            const plpK = plp / 1000;
-            document.getElementById('plpOutput').textContent = plp >= 0 ? '$' + plpK.toFixed(1) + 'K' : '-$' + Math.abs(plpK).toFixed(1) + 'K';
-            document.getElementById('plpOutput').style.color = plp < 0 ? '#f87171' : plp < 3000 ? '#facc15' : '#4ade80';
+            // PLP (effective, after marketing allocation)
+            const plpK = plpEffective / 1000;
+            document.getElementById('plpOutput').textContent = plpEffective >= 0 ? '$' + plpK.toFixed(1) + 'K' : '-$' + Math.abs(plpK).toFixed(1) + 'K';
+            document.getElementById('plpOutput').style.color = plpEffective < 0 ? '#f87171' : plpEffective < 3000 ? '#facc15' : '#4ade80';
 
             // Net profit
             document.getElementById('netProfitOutput').textContent = formatMoney(netProfit);
@@ -800,11 +818,11 @@
             }
 
             const datasets = [];
-            const displaySpreads = [1000, 1100, 1200, 1300, 1400, 1500, 1600];
-            const colors = ['#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444', '#991b1b'];
+            const displaySpreads = [950, 1000, 1100, 1150, 1200, 1300, 1400, 1500, 1600];
+            const colors = ['#0ea5e9', '#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444', '#dc2626', '#991b1b'];
 
             displaySpreads.forEach((spread, i) => {
-                const plp = calcPLP(spread);
+                const plpGross = calcPLPGross(spread);
                 const maxInfo = findMaxProfitableMarketing(spread);
 
                 // Profitable region (solid)
@@ -818,7 +836,7 @@
                 }
 
                 datasets.push({
-                    label: `${(spread/100).toFixed(0)}% (PLP: $${(plp/1000).toFixed(1)}K)`,
+                    label: `${(spread/100).toFixed(0)}% (PLP: $${(plpGross/1000).toFixed(1)}K)`,
                     data: profitableData,
                     borderColor: colors[i],
                     backgroundColor: colors[i] + '20',
@@ -914,13 +932,13 @@
             });
 
             displaySpreads.forEach(spread => {
-                const plp = calcPLP(spread);
+                const plpGross = calcPLPGross(spread);
                 const info = findMaxProfitableMarketing(spread);
                 const isSelected = Math.abs(spread - currentSpread) < 30;
                 const isMax = spread === maxContractsSpread;
                 const isInfeasible = !info.feasible;
 
-                const plpDisplay = plp >= 0 ? '$' + (plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(plp)/1000).toFixed(1) + 'K';
+                const plpDisplay = plpGross >= 0 ? '$' + (plpGross/1000).toFixed(1) + 'K' : '-$' + (Math.abs(plpGross)/1000).toFixed(1) + 'K';
 
                 let rowClass = '';
                 if (isSelected) rowClass = 'selected';
@@ -929,7 +947,7 @@
                 tbody.innerHTML += `
                     <tr class="${rowClass}" onclick="setSpread(${spread})" style="cursor: pointer;">
                         <td>${(spread/100).toFixed(2)}%${spread < 1100 ? ' *' : ''}</td>
-                        <td style="color: ${plp < 0 ? '#f87171' : plp < 3000 ? '#facc15' : '#4ade80'}">${plpDisplay}</td>
+                        <td style="color: ${plpGross < 0 ? '#f87171' : plpGross < 3000 ? '#facc15' : '#4ade80'}">${plpDisplay}</td>
                         <td>${isInfeasible ? '—' : '$' + info.marketing + 'M'}</td>
                         <td class="${isMax && !isInfeasible ? 'max-contracts' : ''}">${isInfeasible ? '—' : info.contracts.toLocaleString()}${isMax && !isInfeasible ? ' ✓' : ''}</td>
                         <td>${isInfeasible ? '—' : formatMoney(info.netProfit)}</td>
@@ -956,9 +974,9 @@
             let bestSpread = 1175;
             let bestMarketing = 40;
 
-            for (let spread = 1000; spread <= 1700; spread += 25) {
-                const plp = calcPLP(spread);
-                if (plp > 0) {
+            for (let spread = 900; spread <= 1700; spread += 25) {
+                const plpGross = calcPLPGross(spread);
+                if (plpGross > 0) {
                     const info = findMaxProfitableMarketing(spread);
                     if (info.contracts > maxContracts) {
                         maxContracts = info.contracts;
