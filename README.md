@@ -2,7 +2,7 @@
 
 Interactive visualization of marketing spend vs contracts with diminishing returns analysis.
 
-**[View Key Findings →](FINDINGS.md)**
+**[View Key Findings →](FINDINGS.md)** | **[Spread vs Spend Arbitrage →](ARBITRAGE.md)**
 
 ## Features
 
