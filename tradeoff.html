@@ -40,7 +40,7 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 350px 1fr;
+            grid-template-columns: 380px 1fr;
             gap: 24px;
         }
 
@@ -58,7 +58,7 @@
         }
 
         .control-section {
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
         .control-section:last-child {
@@ -147,6 +147,16 @@
             margin-bottom: 12px;
         }
 
+        .output-card.primary {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .output-card.danger {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
         .output-label {
             font-size: 11px;
             color: #8892b0;
@@ -162,7 +172,7 @@
         }
 
         .output-value.large {
-            font-size: 42px;
+            font-size: 48px;
         }
 
         .output-detail {
@@ -186,110 +196,88 @@
 
         .chart-container {
             position: relative;
-            height: 400px;
+            height: 350px;
             margin-bottom: 24px;
         }
 
-        .breakeven-warning {
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .breakeven-warning.show {
-            display: block;
-        }
-
-        .breakeven-warning .title {
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-badge.profitable {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .status-badge.unprofitable {
+            background: rgba(248, 113, 113, 0.2);
             color: #f87171;
-            margin-bottom: 4px;
         }
 
-        .breakeven-warning .detail {
-            font-size: 13px;
-            color: #fca5a5;
-        }
-
-        .iso-curves-section {
+        .frontier-section {
             margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .iso-title {
-            font-size: 14px;
+        .frontier-title {
+            font-size: 16px;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
-        .iso-description {
+        .frontier-description {
             font-size: 13px;
             color: #8892b0;
             margin-bottom: 16px;
         }
 
-        .target-input-group {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .target-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 6px;
-            padding: 10px 14px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 500;
-            width: 140px;
-        }
-
-        .target-input:focus {
-            outline: none;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .combinations-table {
+        .frontier-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            margin-top: 16px;
         }
 
-        .combinations-table th,
-        .combinations-table td {
+        .frontier-table th,
+        .frontier-table td {
             padding: 10px 12px;
             text-align: right;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .combinations-table th {
+        .frontier-table th {
             background: rgba(255, 255, 255, 0.05);
             font-weight: 600;
             color: #fff;
         }
 
-        .combinations-table th:first-child,
-        .combinations-table td:first-child {
+        .frontier-table th:first-child,
+        .frontier-table td:first-child {
             text-align: left;
         }
 
-        .combinations-table tr:hover td {
+        .frontier-table tr:hover td {
             background: rgba(255, 255, 255, 0.03);
         }
 
-        .combinations-table .best {
-            background: rgba(74, 222, 128, 0.1);
+        .frontier-table tr.selected td {
+            background: rgba(34, 197, 94, 0.15);
         }
 
-        .profit-positive { color: #4ade80; }
-        .profit-negative { color: #f87171; }
-        .profit-warning { color: #facc15; }
+        .frontier-table tr.infeasible td {
+            color: #666;
+        }
+
+        .frontier-table .max-contracts {
+            color: #4ade80;
+            font-weight: 600;
+        }
 
         .nav-link {
             display: inline-block;
@@ -303,33 +291,47 @@
             color: #fff;
         }
 
-        .mode-toggle {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            overflow: hidden;
+        .constraint-box {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
             margin-bottom: 16px;
+            font-size: 13px;
         }
 
-        .mode-btn {
-            flex: 1;
-            padding: 10px 16px;
-            background: transparent;
-            border: none;
+        .constraint-box .label {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
             color: #8892b0;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .mode-btn.active {
-            background: rgba(255, 255, 255, 0.15);
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
         }
 
-        .mode-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.08);
+        .quick-btn.active {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #4ade80;
         }
     </style>
 </head>
@@ -337,10 +339,14 @@
     <div class="container">
         <a href="index.html" class="nav-link">← Back to Cost Curves</a>
         <h1>Spread vs Marketing Trade-off Explorer</h1>
-        <p class="subtitle">Manipulate both levers to find optimal combinations for your contract target</p>
+        <p class="subtitle">Maximize contracts while maintaining profitability (Net Profit ≥ $0)</p>
 
         <div class="main-grid">
             <div class="controls-panel">
+                <div class="constraint-box">
+                    <span class="label">Constraint:</span> Net Profit ≥ $0
+                </div>
+
                 <div class="control-section">
                     <div class="control-title"><span class="icon">📊</span> Input Levers</div>
 
@@ -371,81 +377,61 @@
                             <span>$150M</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="breakeven-warning" id="breakevenWarning">
-                    <div class="title">⚠️ Below Breakeven</div>
-                    <div class="detail">At this spread, every contract loses money. PLP is negative.</div>
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="setToMaxContracts()">Max Contracts (Profitable)</button>
+                        <button class="quick-btn" onclick="setToOptimal()">Optimal Balance</button>
+                    </div>
                 </div>
 
                 <div class="control-section">
-                    <div class="control-title"><span class="icon">📈</span> Output</div>
+                    <div class="control-title"><span class="icon">🎯</span> Output</div>
 
-                    <div class="output-card">
+                    <div class="output-card primary" id="contractsCard">
                         <div class="output-label">Annual Contracts</div>
                         <div class="output-value large" id="contractsOutput">22,200</div>
+                        <span class="status-badge profitable" id="statusBadge">✓ Profitable</span>
                     </div>
 
                     <div class="output-grid">
                         <div class="output-card">
                             <div class="output-label">PLP / Contract</div>
                             <div class="output-value" id="plpOutput">$6.4K</div>
-                            <div class="output-detail" id="plpBps">170 bps</div>
-                        </div>
-                        <div class="output-card">
-                            <div class="output-label">Gross Profit</div>
-                            <div class="output-value" id="grossProfitOutput">$142M</div>
-                            <div class="output-detail">Contracts × PLP</div>
-                        </div>
-                    </div>
-
-                    <div class="output-grid">
-                        <div class="output-card">
-                            <div class="output-label">Marketing Cost</div>
-                            <div class="output-value" id="marketingCostOutput">$40M</div>
                         </div>
                         <div class="output-card">
                             <div class="output-label">Net Profit</div>
                             <div class="output-value" id="netProfitOutput">$102M</div>
-                            <div class="output-detail">Gross - Marketing</div>
                         </div>
+                    </div>
+
+                    <div class="output-card">
+                        <div class="output-label">Max Profitable Marketing at This Spread</div>
+                        <div class="output-value" id="maxMarketingOutput">$142M</div>
+                        <div class="output-detail" id="maxMarketingContracts">→ 28,500 contracts at breakeven</div>
                     </div>
                 </div>
             </div>
 
             <div class="chart-panel">
-                <div class="mode-toggle">
-                    <button class="mode-btn active" id="modeContracts" onclick="setChartMode('contracts')">Contracts View</button>
-                    <button class="mode-btn" id="modeProfit" onclick="setChartMode('profit')">Profit View</button>
-                    <button class="mode-btn" id="modeIso" onclick="setChartMode('iso')">Iso-Contract Curves</button>
-                </div>
-
                 <div class="chart-container">
                     <canvas id="mainChart"></canvas>
                 </div>
 
-                <div class="iso-curves-section" id="isoSection" style="display: none;">
-                    <div class="iso-title">Find All Paths to Target Contracts</div>
-                    <div class="iso-description">Enter a contract target to see all spread + marketing combinations that achieve it, ranked by profit.</div>
+                <div class="frontier-section">
+                    <div class="frontier-title">Profitability Frontier: Max Contracts by Spread</div>
+                    <div class="frontier-description">For each spread level, shows the maximum contracts achievable while maintaining Net Profit ≥ $0</div>
 
-                    <div class="target-input-group">
-                        <span class="slider-label">Target Contracts:</span>
-                        <input type="text" class="target-input" id="targetContracts" value="20,000">
-                        <button class="mode-btn active" onclick="calculateIsoCurves()" style="padding: 10px 20px;">Calculate</button>
-                    </div>
-
-                    <table class="combinations-table" id="combinationsTable">
+                    <table class="frontier-table" id="frontierTable">
                         <thead>
                             <tr>
                                 <th>Spread</th>
-                                <th>Marketing</th>
-                                <th>Contracts</th>
-                                <th>PLP</th>
-                                <th>Gross Profit</th>
+                                <th>PLP/Unit</th>
+                                <th>Max Marketing</th>
+                                <th>Max Contracts</th>
                                 <th>Net Profit</th>
                             </tr>
                         </thead>
-                        <tbody id="combinationsBody"></tbody>
+                        <tbody id="frontierBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -453,11 +439,10 @@
     </div>
 
     <script>
-        // Data model - same as main visualization
+        // Data model
         const spreadLevels = [900, 950, 1000, 1050, 1100, 1139, 1239, 1339, 1439, 1539, 1639, 1739, 1800];
         const spendLevels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150];
 
-        // Contracts matrix - extended with extrapolation
         const contractsData = {
             900:  [26800, 29700, 31500, 32700, 33900, 35000, 36200, 36800, 37500, 38700, 39300, 40600, 42000],
             950:  [24600, 27200, 28900, 30000, 31100, 32100, 33200, 33800, 34400, 35500, 36100, 37200, 38500],
@@ -483,13 +468,11 @@
             return baselinePLP + (spreadBps - baselineSpread) * bpsValue;
         }
 
-        // Interpolation functions
         function lerp(a, b, t) {
             return a + (b - a) * t;
         }
 
         function getContracts(spreadBps, marketingM) {
-            // Find surrounding spread levels
             let lowerSpread = spreadLevels[0];
             let upperSpread = spreadLevels[spreadLevels.length - 1];
             for (let i = 0; i < spreadLevels.length - 1; i++) {
@@ -500,24 +483,19 @@
                 }
             }
 
-            // Find surrounding spend levels
-            let lowerSpend = spendLevels[0];
-            let upperSpend = spendLevels[spendLevels.length - 1];
             let lowerSpendIdx = 0;
             let upperSpendIdx = spendLevels.length - 1;
             for (let i = 0; i < spendLevels.length - 1; i++) {
                 if (marketingM >= spendLevels[i] && marketingM <= spendLevels[i + 1]) {
-                    lowerSpend = spendLevels[i];
-                    upperSpend = spendLevels[i + 1];
                     lowerSpendIdx = i;
                     upperSpendIdx = i + 1;
                     break;
                 }
             }
 
-            // Bilinear interpolation
             const tSpread = upperSpread === lowerSpread ? 0 : (spreadBps - lowerSpread) / (upperSpread - lowerSpread);
-            const tSpend = upperSpend === lowerSpend ? 0 : (marketingM - lowerSpend) / (upperSpend - lowerSpend);
+            const tSpend = spendLevels[upperSpendIdx] === spendLevels[lowerSpendIdx] ? 0 :
+                (marketingM - spendLevels[lowerSpendIdx]) / (spendLevels[upperSpendIdx] - spendLevels[lowerSpendIdx]);
 
             const c00 = contractsData[lowerSpread][lowerSpendIdx];
             const c01 = contractsData[lowerSpread][upperSpendIdx];
@@ -529,54 +507,95 @@
             return Math.round(lerp(c0, c1, tSpread));
         }
 
+        function calcNetProfit(spreadBps, marketingM) {
+            const contracts = getContracts(spreadBps, marketingM);
+            const plp = calcPLP(spreadBps);
+            return (contracts * plp) - (marketingM * 1000000);
+        }
+
+        // Find max profitable marketing for a given spread
+        function findMaxProfitableMarketing(spreadBps) {
+            const plp = calcPLP(spreadBps);
+            if (plp <= 0) return { marketing: 0, contracts: getContracts(spreadBps, 0), netProfit: getContracts(spreadBps, 0) * plp };
+
+            let maxMarketing = 0;
+            let maxContracts = getContracts(spreadBps, 0);
+
+            for (let m = 0; m <= 200; m += 1) {
+                const contracts = getContracts(spreadBps, m);
+                const netProfit = (contracts * plp) - (m * 1000000);
+                if (netProfit >= 0) {
+                    maxMarketing = m;
+                    maxContracts = contracts;
+                } else {
+                    break;
+                }
+            }
+
+            return {
+                marketing: maxMarketing,
+                contracts: maxContracts,
+                netProfit: (maxContracts * plp) - (maxMarketing * 1000000)
+            };
+        }
+
         // State
         let currentSpread = 1175;
         let currentMarketing = 40;
-        let chartMode = 'contracts';
         let chart = null;
 
-        // Update outputs
+        function formatMoney(value) {
+            const absValue = Math.abs(value);
+            if (absValue >= 1000000000) {
+                return (value < 0 ? '-' : '') + '$' + (absValue / 1000000000).toFixed(1) + 'B';
+            }
+            return (value < 0 ? '-' : '') + '$' + Math.round(absValue / 1000000) + 'M';
+        }
+
         function updateOutputs() {
             const contracts = getContracts(currentSpread, currentMarketing);
             const plp = calcPLP(currentSpread);
             const grossProfit = contracts * plp;
             const netProfit = grossProfit - (currentMarketing * 1000000);
+            const isProfitable = netProfit >= 0;
 
-            // Update display values
+            // Update sliders display
             document.getElementById('spreadValue').textContent = (currentSpread / 100).toFixed(2) + '%';
             document.getElementById('marketingValue').textContent = '$' + currentMarketing + 'M';
+
+            // Main output
             document.getElementById('contractsOutput').textContent = contracts.toLocaleString();
 
+            const contractsCard = document.getElementById('contractsCard');
+            const statusBadge = document.getElementById('statusBadge');
+            if (isProfitable) {
+                contractsCard.className = 'output-card primary';
+                statusBadge.className = 'status-badge profitable';
+                statusBadge.textContent = '✓ Profitable';
+            } else {
+                contractsCard.className = 'output-card danger';
+                statusBadge.className = 'status-badge unprofitable';
+                statusBadge.textContent = '✗ Unprofitable';
+            }
+
+            // PLP
             const plpK = plp / 1000;
-            const plpDisplay = plp >= 0 ? '$' + plpK.toFixed(1) + 'K' : '-$' + Math.abs(plpK).toFixed(1) + 'K';
-            document.getElementById('plpOutput').textContent = plpDisplay;
-            document.getElementById('plpOutput').className = 'output-value ' + (plp < 0 ? 'negative' : plp < 3000 ? 'warning' : 'positive');
+            document.getElementById('plpOutput').textContent = plp >= 0 ? '$' + plpK.toFixed(1) + 'K' : '-$' + Math.abs(plpK).toFixed(1) + 'K';
+            document.getElementById('plpOutput').style.color = plp < 0 ? '#f87171' : plp < 3000 ? '#facc15' : '#4ade80';
 
-            document.getElementById('plpBps').textContent = Math.round((currentSpread - baselineSpread) + 170) + ' bps';
+            // Net profit
+            document.getElementById('netProfitOutput').textContent = formatMoney(netProfit);
+            document.getElementById('netProfitOutput').style.color = netProfit < 0 ? '#f87171' : '#4ade80';
 
-            document.getElementById('grossProfitOutput').textContent = formatProfit(grossProfit);
-            document.getElementById('grossProfitOutput').className = 'output-value ' + (grossProfit < 0 ? 'negative' : 'positive');
-
-            document.getElementById('marketingCostOutput').textContent = '$' + currentMarketing + 'M';
-
-            document.getElementById('netProfitOutput').textContent = formatProfit(netProfit);
-            document.getElementById('netProfitOutput').className = 'output-value ' + (netProfit < 0 ? 'negative' : netProfit < 50000000 ? 'warning' : 'positive');
-
-            // Breakeven warning
-            document.getElementById('breakevenWarning').className = 'breakeven-warning' + (plp < 0 ? ' show' : '');
+            // Max marketing at this spread
+            const maxInfo = findMaxProfitableMarketing(currentSpread);
+            document.getElementById('maxMarketingOutput').textContent = '$' + maxInfo.marketing + 'M';
+            document.getElementById('maxMarketingContracts').textContent = `→ ${maxInfo.contracts.toLocaleString()} contracts at breakeven`;
 
             updateChart();
+            updateFrontierTable();
         }
 
-        function formatProfit(value) {
-            const absValue = Math.abs(value);
-            if (absValue >= 1000000000) {
-                return (value < 0 ? '-' : '') + '$' + (absValue / 1000000000).toFixed(1) + 'B';
-            }
-            return (value < 0 ? '-' : '') + '$' + (absValue / 1000000).toFixed(0) + 'M';
-        }
-
-        // Chart
         function initChart() {
             const ctx = document.getElementById('mainChart').getContext('2d');
             chart = new Chart(ctx, {
@@ -585,22 +604,22 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: false
-                    },
+                    interaction: { mode: 'nearest', intersect: false },
                     plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: { color: '#8892b0' }
-                        },
+                        legend: { display: true, position: 'top', labels: { color: '#8892b0' } },
                         tooltip: {
                             backgroundColor: 'rgba(20, 20, 35, 0.95)',
                             titleColor: '#fff',
                             bodyColor: '#e8e8e8',
-                            borderColor: 'rgba(255, 255, 255, 0.15)',
-                            borderWidth: 1
+                            callbacks: {
+                                label: function(ctx) {
+                                    const spread = ctx.dataset.spread;
+                                    const marketing = ctx.parsed.x;
+                                    const contracts = ctx.parsed.y;
+                                    const netProfit = calcNetProfit(spread, marketing);
+                                    return `${contracts.toLocaleString()} contracts (Net: ${formatMoney(netProfit)})`;
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -608,7 +627,8 @@
                             type: 'linear',
                             title: { display: true, text: 'Marketing Spend ($M)', color: '#8892b0' },
                             ticks: { color: '#8892b0' },
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            max: 160
                         },
                         y: {
                             title: { display: true, text: 'Contracts', color: '#8892b0' },
@@ -624,235 +644,172 @@
         function updateChart() {
             if (!chart) return;
 
-            if (chartMode === 'contracts') {
-                updateContractsChart();
-            } else if (chartMode === 'profit') {
-                updateProfitChart();
-            } else if (chartMode === 'iso') {
-                updateIsoChart();
-            }
-        }
-
-        function updateContractsChart() {
             const datasets = [];
-
-            // Current spread curve (highlighted)
-            const currentData = spendLevels.map(s => ({ x: s, y: getContracts(currentSpread, s) }));
-            datasets.push({
-                label: `Current: ${(currentSpread/100).toFixed(2)}%`,
-                data: currentData,
-                borderColor: '#22c55e',
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                borderWidth: 3,
-                pointRadius: 4,
-                fill: true
-            });
-
-            // Reference curves
-            const refSpreads = [900, 1000, 1139, 1339, 1539, 1739];
-            const refColors = ['#06b6d4', '#0e7490', '#84cc16', '#eab308', '#ef4444', '#991b1b'];
-            refSpreads.forEach((spread, i) => {
-                if (spread !== currentSpread) {
-                    const data = spendLevels.map(s => ({ x: s, y: getContracts(spread, s) }));
-                    datasets.push({
-                        label: `${(spread/100).toFixed(2)}%`,
-                        data: data,
-                        borderColor: refColors[i],
-                        borderWidth: 1,
-                        pointRadius: 0,
-                        borderDash: [5, 5]
-                    });
-                }
-            });
-
-            // Current point marker
-            datasets.push({
-                label: 'Current Selection',
-                data: [{ x: currentMarketing, y: getContracts(currentSpread, currentMarketing) }],
-                borderColor: '#fff',
-                backgroundColor: '#22c55e',
-                pointRadius: 10,
-                pointStyle: 'circle',
-                showLine: false
-            });
-
-            chart.data.datasets = datasets;
-            chart.options.scales.y.title.text = 'Contracts';
-            chart.update();
-        }
-
-        function updateProfitChart() {
-            const datasets = [];
-
-            // Show net profit curves for different spreads
-            const profitSpreads = [1000, 1100, 1200, 1300, 1400, 1500, 1600];
+            const displaySpreads = [1000, 1100, 1200, 1300, 1400, 1500, 1600];
             const colors = ['#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444', '#991b1b'];
 
-            profitSpreads.forEach((spread, i) => {
+            displaySpreads.forEach((spread, i) => {
                 const plp = calcPLP(spread);
-                const data = spendLevels.map(s => {
-                    const contracts = getContracts(spread, s);
-                    const netProfit = (contracts * plp) - (s * 1000000);
-                    return { x: s, y: netProfit / 1000000 };
-                });
+                const maxInfo = findMaxProfitableMarketing(spread);
+
+                // Profitable region (solid)
+                const profitableData = [];
+                for (let m = 0; m <= maxInfo.marketing; m += 5) {
+                    profitableData.push({ x: m, y: getContracts(spread, m) });
+                }
+                if (maxInfo.marketing % 5 !== 0) {
+                    profitableData.push({ x: maxInfo.marketing, y: maxInfo.contracts });
+                }
+
                 datasets.push({
                     label: `${(spread/100).toFixed(0)}% (PLP: $${(plp/1000).toFixed(1)}K)`,
-                    data: data,
+                    data: profitableData,
                     borderColor: colors[i],
-                    borderWidth: spread === Math.round(currentSpread / 100) * 100 ? 3 : 1.5,
-                    pointRadius: 0
+                    backgroundColor: colors[i] + '20',
+                    borderWidth: Math.abs(spread - currentSpread) < 50 ? 3 : 1.5,
+                    pointRadius: 0,
+                    fill: false,
+                    spread: spread
+                });
+
+                // Unprofitable region (dashed)
+                if (maxInfo.marketing < 150) {
+                    const unprofitableData = [];
+                    for (let m = maxInfo.marketing; m <= 150; m += 5) {
+                        unprofitableData.push({ x: m, y: getContracts(spread, m) });
+                    }
+                    datasets.push({
+                        label: '',
+                        data: unprofitableData,
+                        borderColor: colors[i] + '40',
+                        borderWidth: 1,
+                        borderDash: [4, 4],
+                        pointRadius: 0,
+                        spread: spread
+                    });
+                }
+
+                // Max point marker
+                datasets.push({
+                    label: '',
+                    data: [{ x: maxInfo.marketing, y: maxInfo.contracts }],
+                    backgroundColor: colors[i],
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    pointRadius: 6,
+                    showLine: false,
+                    spread: spread
                 });
             });
 
-            // Zero line
-            datasets.push({
-                label: 'Breakeven',
-                data: [{ x: 0, y: 0 }, { x: 150, y: 0 }],
-                borderColor: 'rgba(255, 255, 255, 0.3)',
-                borderWidth: 1,
-                borderDash: [3, 3],
-                pointRadius: 0
-            });
-
-            // Current point
+            // Current selection
             const currentContracts = getContracts(currentSpread, currentMarketing);
-            const currentPLP = calcPLP(currentSpread);
-            const currentNetProfit = (currentContracts * currentPLP) - (currentMarketing * 1000000);
+            const currentNetProfit = calcNetProfit(currentSpread, currentMarketing);
             datasets.push({
-                label: 'Current Selection',
-                data: [{ x: currentMarketing, y: currentNetProfit / 1000000 }],
-                borderColor: '#fff',
+                label: 'Current',
+                data: [{ x: currentMarketing, y: currentContracts }],
                 backgroundColor: currentNetProfit >= 0 ? '#22c55e' : '#f87171',
-                pointRadius: 10,
-                showLine: false
-            });
-
-            chart.data.datasets = datasets;
-            chart.options.scales.y.title.text = 'Net Profit ($M)';
-            chart.update();
-        }
-
-        function updateIsoChart() {
-            // Show iso-contract curves (combinations achieving same contracts)
-            const targetContracts = [15000, 20000, 25000, 30000];
-            const datasets = [];
-            const colors = ['#84cc16', '#eab308', '#f97316', '#ef4444'];
-
-            targetContracts.forEach((target, i) => {
-                const points = [];
-                for (let spread = 900; spread <= 1700; spread += 50) {
-                    // Find marketing spend needed for this target at this spread
-                    for (let m = 0; m <= 150; m += 1) {
-                        const c = getContracts(spread, m);
-                        if (c >= target) {
-                            points.push({ x: spread / 100, y: m });
-                            break;
-                        }
-                    }
-                }
-                if (points.length > 0) {
-                    datasets.push({
-                        label: `${target.toLocaleString()} contracts`,
-                        data: points,
-                        borderColor: colors[i],
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        tension: 0.3
-                    });
-                }
-            });
-
-            // Current point
-            datasets.push({
-                label: 'Current Selection',
-                data: [{ x: currentSpread / 100, y: currentMarketing }],
                 borderColor: '#fff',
-                backgroundColor: '#22c55e',
-                pointRadius: 10,
-                showLine: false
+                borderWidth: 3,
+                pointRadius: 12,
+                pointStyle: 'circle',
+                showLine: false,
+                spread: currentSpread
             });
 
             chart.data.datasets = datasets;
-            chart.options.scales.x.title.text = 'Spread (%)';
-            chart.options.scales.y.title.text = 'Marketing Spend ($M)';
             chart.update();
         }
 
-        function setChartMode(mode) {
-            chartMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
-
-            document.getElementById('isoSection').style.display = mode === 'iso' ? 'block' : 'none';
-
-            // Reset axis labels for non-iso modes
-            if (mode !== 'iso') {
-                chart.options.scales.x.title.text = 'Marketing Spend ($M)';
-            }
-
-            updateChart();
-        }
-
-        function calculateIsoCurves() {
-            const targetInput = document.getElementById('targetContracts').value;
-            const target = parseInt(targetInput.replace(/,/g, ''));
-
-            if (isNaN(target) || target < 5000 || target > 50000) {
-                alert('Please enter a target between 5,000 and 50,000');
-                return;
-            }
-
-            // Find all combinations that achieve target
-            const combinations = [];
-            for (let spread = 900; spread <= 1800; spread += 50) {
-                for (let m = 0; m <= 150; m += 5) {
-                    const c = getContracts(spread, m);
-                    if (c >= target && c <= target * 1.05) { // Within 5% of target
-                        const plp = calcPLP(spread);
-                        const gross = c * plp;
-                        const net = gross - (m * 1000000);
-                        combinations.push({
-                            spread: spread,
-                            marketing: m,
-                            contracts: c,
-                            plp: plp,
-                            gross: gross,
-                            net: net
-                        });
-                        break; // Only first match per spread level
-                    }
-                }
-            }
-
-            // Sort by net profit descending
-            combinations.sort((a, b) => b.net - a.net);
-
-            // Render table
-            const tbody = document.getElementById('combinationsBody');
+        function updateFrontierTable() {
+            const tbody = document.getElementById('frontierBody');
             tbody.innerHTML = '';
 
-            if (combinations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#8892b0;">No achievable combinations found. Try a lower target.</td></tr>';
-                return;
-            }
+            const displaySpreads = [900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1400, 1500, 1600, 1700];
+            let maxContracts = 0;
+            let maxContractsSpread = 0;
 
-            const maxNet = combinations[0].net;
-            combinations.forEach((c, i) => {
-                const profitClass = c.net < 0 ? 'profit-negative' : c.net < 50000000 ? 'profit-warning' : 'profit-positive';
-                const plpClass = c.plp < 0 ? 'profit-negative' : c.plp < 3000 ? 'profit-warning' : 'profit-positive';
-                const rowClass = i === 0 ? 'best' : '';
+            // First pass: find max
+            displaySpreads.forEach(spread => {
+                const plp = calcPLP(spread);
+                if (plp > 0) {
+                    const info = findMaxProfitableMarketing(spread);
+                    if (info.contracts > maxContracts) {
+                        maxContracts = info.contracts;
+                        maxContractsSpread = spread;
+                    }
+                }
+            });
+
+            displaySpreads.forEach(spread => {
+                const plp = calcPLP(spread);
+                const info = findMaxProfitableMarketing(spread);
+                const isSelected = Math.abs(spread - currentSpread) < 30;
+                const isMax = spread === maxContractsSpread;
+                const isInfeasible = plp <= 0;
+
+                const plpDisplay = plp >= 0 ? '$' + (plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(plp)/1000).toFixed(1) + 'K';
+
+                let rowClass = '';
+                if (isSelected) rowClass = 'selected';
+                else if (isInfeasible) rowClass = 'infeasible';
 
                 tbody.innerHTML += `
-                    <tr class="${rowClass}">
-                        <td>${(c.spread/100).toFixed(2)}%${c.spread < 1100 ? ' *' : ''}</td>
-                        <td>$${c.marketing}M</td>
-                        <td>${c.contracts.toLocaleString()}</td>
-                        <td class="${plpClass}">${c.plp >= 0 ? '$' + (c.plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(c.plp)/1000).toFixed(1) + 'K'}</td>
-                        <td class="${profitClass}">${formatProfit(c.gross)}</td>
-                        <td class="${profitClass}">${formatProfit(c.net)}${i === 0 ? ' ✓' : ''}</td>
+                    <tr class="${rowClass}" onclick="setSpread(${spread})" style="cursor: pointer;">
+                        <td>${(spread/100).toFixed(2)}%${spread < 1100 ? ' *' : ''}</td>
+                        <td style="color: ${plp < 0 ? '#f87171' : plp < 3000 ? '#facc15' : '#4ade80'}">${plpDisplay}</td>
+                        <td>${isInfeasible ? '—' : '$' + info.marketing + 'M'}</td>
+                        <td class="${isMax && !isInfeasible ? 'max-contracts' : ''}">${isInfeasible ? '—' : info.contracts.toLocaleString()}${isMax && !isInfeasible ? ' ✓' : ''}</td>
+                        <td>${isInfeasible ? '—' : formatMoney(info.netProfit)}</td>
                     </tr>
                 `;
             });
+        }
+
+        function setSpread(spread) {
+            currentSpread = spread;
+            document.getElementById('spreadSlider').value = spread;
+
+            // Also set marketing to max profitable for this spread
+            const maxInfo = findMaxProfitableMarketing(spread);
+            currentMarketing = Math.min(maxInfo.marketing, 150);
+            document.getElementById('marketingSlider').value = currentMarketing;
+
+            updateOutputs();
+        }
+
+        function setToMaxContracts() {
+            // Find spread with max profitable contracts
+            let maxContracts = 0;
+            let bestSpread = 1175;
+            let bestMarketing = 40;
+
+            for (let spread = 1000; spread <= 1700; spread += 25) {
+                const plp = calcPLP(spread);
+                if (plp > 0) {
+                    const info = findMaxProfitableMarketing(spread);
+                    if (info.contracts > maxContracts) {
+                        maxContracts = info.contracts;
+                        bestSpread = spread;
+                        bestMarketing = info.marketing;
+                    }
+                }
+            }
+
+            currentSpread = bestSpread;
+            currentMarketing = Math.min(bestMarketing, 150);
+            document.getElementById('spreadSlider').value = currentSpread;
+            document.getElementById('marketingSlider').value = currentMarketing;
+            updateOutputs();
+        }
+
+        function setToOptimal() {
+            // Balance: good contracts with healthy profit margin
+            currentSpread = 1300;
+            currentMarketing = 50;
+            document.getElementById('spreadSlider').value = currentSpread;
+            document.getElementById('marketingSlider').value = currentMarketing;
+            updateOutputs();
         }
 
         // Event listeners
@@ -864,10 +821,6 @@
         document.getElementById('marketingSlider').addEventListener('input', function() {
             currentMarketing = parseInt(this.value);
             updateOutputs();
-        });
-
-        document.getElementById('targetContracts').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') calculateIsoCurves();
         });
 
         // Initialize
