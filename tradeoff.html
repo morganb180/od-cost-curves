@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spread vs Marketing Trade-off Explorer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #8892b0;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .control-section {
+            margin-bottom: 32px;
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-title .icon {
+            font-size: 18px;
+        }
+
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-label {
+            font-size: 13px;
+            color: #8892b0;
+        }
+
+        .slider-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .slider-value.negative {
+            color: #f87171;
+        }
+
+        .slider-value.positive {
+            color: #4ade80;
+        }
+
+        .slider-value.warning {
+            color: #facc15;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .slider-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .output-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .output-label {
+            font-size: 11px;
+            color: #8892b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .output-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .output-value.large {
+            font-size: 42px;
+        }
+
+        .output-detail {
+            font-size: 12px;
+            color: #8892b0;
+            margin-top: 4px;
+        }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .chart-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 24px;
+        }
+
+        .breakeven-warning {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .breakeven-warning.show {
+            display: block;
+        }
+
+        .breakeven-warning .title {
+            font-weight: 600;
+            color: #f87171;
+            margin-bottom: 4px;
+        }
+
+        .breakeven-warning .detail {
+            font-size: 13px;
+            color: #fca5a5;
+        }
+
+        .iso-curves-section {
+            margin-top: 24px;
+        }
+
+        .iso-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .iso-description {
+            font-size: 13px;
+            color: #8892b0;
+            margin-bottom: 16px;
+        }
+
+        .target-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .target-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            width: 140px;
+        }
+
+        .target-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .combinations-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+
+        .combinations-table th,
+        .combinations-table td {
+            padding: 10px 12px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .combinations-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .combinations-table th:first-child,
+        .combinations-table td:first-child {
+            text-align: left;
+        }
+
+        .combinations-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .combinations-table .best {
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .profit-positive { color: #4ade80; }
+        .profit-negative { color: #f87171; }
+        .profit-warning { color: #facc15; }
+
+        .nav-link {
+            display: inline-block;
+            color: #8892b0;
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #8892b0;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="nav-link">← Back to Cost Curves</a>
+        <h1>Spread vs Marketing Trade-off Explorer</h1>
+        <p class="subtitle">Manipulate both levers to find optimal combinations for your contract target</p>
+
+        <div class="main-grid">
+            <div class="controls-panel">
+                <div class="control-section">
+                    <div class="control-title"><span class="icon">📊</span> Input Levers</div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Spread</span>
+                            <span class="slider-value" id="spreadValue">11.75%</span>
+                        </div>
+                        <input type="range" id="spreadSlider" min="900" max="1800" value="1175" step="25">
+                        <div class="slider-ticks">
+                            <span>9%</span>
+                            <span>12%</span>
+                            <span>15%</span>
+                            <span>18%</span>
+                        </div>
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Marketing Spend</span>
+                            <span class="slider-value" id="marketingValue">$40M</span>
+                        </div>
+                        <input type="range" id="marketingSlider" min="0" max="150" value="40" step="5">
+                        <div class="slider-ticks">
+                            <span>$0</span>
+                            <span>$50M</span>
+                            <span>$100M</span>
+                            <span>$150M</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="breakeven-warning" id="breakevenWarning">
+                    <div class="title">⚠️ Below Breakeven</div>
+                    <div class="detail">At this spread, every contract loses money. PLP is negative.</div>
+                </div>
+
+                <div class="control-section">
+                    <div class="control-title"><span class="icon">📈</span> Output</div>
+
+                    <div class="output-card">
+                        <div class="output-label">Annual Contracts</div>
+                        <div class="output-value large" id="contractsOutput">22,200</div>
+                    </div>
+
+                    <div class="output-grid">
+                        <div class="output-card">
+                            <div class="output-label">PLP / Contract</div>
+                            <div class="output-value" id="plpOutput">$6.4K</div>
+                            <div class="output-detail" id="plpBps">170 bps</div>
+                        </div>
+                        <div class="output-card">
+                            <div class="output-label">Gross Profit</div>
+                            <div class="output-value" id="grossProfitOutput">$142M</div>
+                            <div class="output-detail">Contracts × PLP</div>
+                        </div>
+                    </div>
+
+                    <div class="output-grid">
+                        <div class="output-card">
+                            <div class="output-label">Marketing Cost</div>
+                            <div class="output-value" id="marketingCostOutput">$40M</div>
+                        </div>
+                        <div class="output-card">
+                            <div class="output-label">Net Profit</div>
+                            <div class="output-value" id="netProfitOutput">$102M</div>
+                            <div class="output-detail">Gross - Marketing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-panel">
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="modeContracts" onclick="setChartMode('contracts')">Contracts View</button>
+                    <button class="mode-btn" id="modeProfit" onclick="setChartMode('profit')">Profit View</button>
+                    <button class="mode-btn" id="modeIso" onclick="setChartMode('iso')">Iso-Contract Curves</button>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+
+                <div class="iso-curves-section" id="isoSection" style="display: none;">
+                    <div class="iso-title">Find All Paths to Target Contracts</div>
+                    <div class="iso-description">Enter a contract target to see all spread + marketing combinations that achieve it, ranked by profit.</div>
+
+                    <div class="target-input-group">
+                        <span class="slider-label">Target Contracts:</span>
+                        <input type="text" class="target-input" id="targetContracts" value="20,000">
+                        <button class="mode-btn active" onclick="calculateIsoCurves()" style="padding: 10px 20px;">Calculate</button>
+                    </div>
+
+                    <table class="combinations-table" id="combinationsTable">
+                        <thead>
+                            <tr>
+                                <th>Spread</th>
+                                <th>Marketing</th>
+                                <th>Contracts</th>
+                                <th>PLP</th>
+                                <th>Gross Profit</th>
+                                <th>Net Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="combinationsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data model - same as main visualization
+        const spreadLevels = [900, 950, 1000, 1050, 1100, 1139, 1239, 1339, 1439, 1539, 1639, 1739, 1800];
+        const spendLevels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150];
+
+        // Contracts matrix - extended with extrapolation
+        const contractsData = {
+            900:  [26800, 29700, 31500, 32700, 33900, 35000, 36200, 36800, 37500, 38700, 39300, 40600, 42000],
+            950:  [24600, 27200, 28900, 30000, 31100, 32100, 33200, 33800, 34400, 35500, 36100, 37200, 38500],
+            1000: [22600, 25000, 26500, 27500, 28500, 29500, 30500, 31000, 31600, 32600, 33100, 34200, 35400],
+            1050: [20700, 22900, 24300, 25200, 26200, 27000, 28000, 28400, 29000, 29900, 30400, 31400, 32500],
+            1100: [19100, 21100, 22400, 23200, 24100, 24900, 25800, 26200, 26700, 27500, 28000, 28900, 29900],
+            1139: [18485, 20581, 21838, 22676, 23514, 24352, 25190, 25609, 26028, 26867, 27286, 28124, 29067],
+            1239: [15404, 17151, 18198, 18897, 19595, 20293, 20992, 21341, 21690, 22389, 22738, 23436, 24222],
+            1339: [12837, 14292, 15165, 15747, 16329, 16911, 17493, 17784, 18075, 18657, 18948, 19530, 20185],
+            1439: [10698, 11910, 12638, 13123, 13608, 14093, 14578, 14820, 15063, 15548, 15790, 16275, 16821],
+            1539: [8915, 9925, 10531, 10936, 11340, 11744, 12148, 12350, 12552, 12956, 13159, 13563, 14017],
+            1639: [7429, 8271, 8776, 9113, 9450, 9787, 10123, 10292, 10460, 10797, 10965, 11302, 11681],
+            1739: [6191, 6892, 7313, 7594, 7875, 8156, 8436, 8577, 8717, 8998, 9138, 9419, 9734],
+            1800: [5600, 6200, 6600, 6850, 7100, 7350, 7600, 7730, 7860, 8100, 8230, 8490, 8780]
+        };
+
+        // Unit economics
+        const baselineSpread = 1175;
+        const baselinePLP = 6400;
+        const bpsValue = 37.50;
+
+        function calcPLP(spreadBps) {
+            return baselinePLP + (spreadBps - baselineSpread) * bpsValue;
+        }
+
+        // Interpolation functions
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function getContracts(spreadBps, marketingM) {
+            // Find surrounding spread levels
+            let lowerSpread = spreadLevels[0];
+            let upperSpread = spreadLevels[spreadLevels.length - 1];
+            for (let i = 0; i < spreadLevels.length - 1; i++) {
+                if (spreadBps >= spreadLevels[i] && spreadBps <= spreadLevels[i + 1]) {
+                    lowerSpread = spreadLevels[i];
+                    upperSpread = spreadLevels[i + 1];
+                    break;
+                }
+            }
+
+            // Find surrounding spend levels
+            let lowerSpend = spendLevels[0];
+            let upperSpend = spendLevels[spendLevels.length - 1];
+            let lowerSpendIdx = 0;
+            let upperSpendIdx = spendLevels.length - 1;
+            for (let i = 0; i < spendLevels.length - 1; i++) {
+                if (marketingM >= spendLevels[i] && marketingM <= spendLevels[i + 1]) {
+                    lowerSpend = spendLevels[i];
+                    upperSpend = spendLevels[i + 1];
+                    lowerSpendIdx = i;
+                    upperSpendIdx = i + 1;
+                    break;
+                }
+            }
+
+            // Bilinear interpolation
+            const tSpread = upperSpread === lowerSpread ? 0 : (spreadBps - lowerSpread) / (upperSpread - lowerSpread);
+            const tSpend = upperSpend === lowerSpend ? 0 : (marketingM - lowerSpend) / (upperSpend - lowerSpend);
+
+            const c00 = contractsData[lowerSpread][lowerSpendIdx];
+            const c01 = contractsData[lowerSpread][upperSpendIdx];
+            const c10 = contractsData[upperSpread][lowerSpendIdx];
+            const c11 = contractsData[upperSpread][upperSpendIdx];
+
+            const c0 = lerp(c00, c01, tSpend);
+            const c1 = lerp(c10, c11, tSpend);
+            return Math.round(lerp(c0, c1, tSpread));
+        }
+
+        // State
+        let currentSpread = 1175;
+        let currentMarketing = 40;
+        let chartMode = 'contracts';
+        let chart = null;
+
+        // Update outputs
+        function updateOutputs() {
+            const contracts = getContracts(currentSpread, currentMarketing);
+            const plp = calcPLP(currentSpread);
+            const grossProfit = contracts * plp;
+            const netProfit = grossProfit - (currentMarketing * 1000000);
+
+            // Update display values
+            document.getElementById('spreadValue').textContent = (currentSpread / 100).toFixed(2) + '%';
+            document.getElementById('marketingValue').textContent = '$' + currentMarketing + 'M';
+            document.getElementById('contractsOutput').textContent = contracts.toLocaleString();
+
+            const plpK = plp / 1000;
+            const plpDisplay = plp >= 0 ? '$' + plpK.toFixed(1) + 'K' : '-$' + Math.abs(plpK).toFixed(1) + 'K';
+            document.getElementById('plpOutput').textContent = plpDisplay;
+            document.getElementById('plpOutput').className = 'output-value ' + (plp < 0 ? 'negative' : plp < 3000 ? 'warning' : 'positive');
+
+            document.getElementById('plpBps').textContent = Math.round((currentSpread - baselineSpread) + 170) + ' bps';
+
+            document.getElementById('grossProfitOutput').textContent = formatProfit(grossProfit);
+            document.getElementById('grossProfitOutput').className = 'output-value ' + (grossProfit < 0 ? 'negative' : 'positive');
+
+            document.getElementById('marketingCostOutput').textContent = '$' + currentMarketing + 'M';
+
+            document.getElementById('netProfitOutput').textContent = formatProfit(netProfit);
+            document.getElementById('netProfitOutput').className = 'output-value ' + (netProfit < 0 ? 'negative' : netProfit < 50000000 ? 'warning' : 'positive');
+
+            // Breakeven warning
+            document.getElementById('breakevenWarning').className = 'breakeven-warning' + (plp < 0 ? ' show' : '');
+
+            updateChart();
+        }
+
+        function formatProfit(value) {
+            const absValue = Math.abs(value);
+            if (absValue >= 1000000000) {
+                return (value < 0 ? '-' : '') + '$' + (absValue / 1000000000).toFixed(1) + 'B';
+            }
+            return (value < 0 ? '-' : '') + '$' + (absValue / 1000000).toFixed(0) + 'M';
+        }
+
+        // Chart
+        function initChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: '#8892b0' }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(20, 20, 35, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#e8e8e8',
+                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: { display: true, text: 'Marketing Spend ($M)', color: '#8892b0' },
+                            ticks: { color: '#8892b0' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Contracts', color: '#8892b0' },
+                            ticks: { color: '#8892b0', callback: v => v.toLocaleString() },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        }
+                    }
+                }
+            });
+            updateChart();
+        }
+
+        function updateChart() {
+            if (!chart) return;
+
+            if (chartMode === 'contracts') {
+                updateContractsChart();
+            } else if (chartMode === 'profit') {
+                updateProfitChart();
+            } else if (chartMode === 'iso') {
+                updateIsoChart();
+            }
+        }
+
+        function updateContractsChart() {
+            const datasets = [];
+
+            // Current spread curve (highlighted)
+            const currentData = spendLevels.map(s => ({ x: s, y: getContracts(currentSpread, s) }));
+            datasets.push({
+                label: `Current: ${(currentSpread/100).toFixed(2)}%`,
+                data: currentData,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                borderWidth: 3,
+                pointRadius: 4,
+                fill: true
+            });
+
+            // Reference curves
+            const refSpreads = [900, 1000, 1139, 1339, 1539, 1739];
+            const refColors = ['#06b6d4', '#0e7490', '#84cc16', '#eab308', '#ef4444', '#991b1b'];
+            refSpreads.forEach((spread, i) => {
+                if (spread !== currentSpread) {
+                    const data = spendLevels.map(s => ({ x: s, y: getContracts(spread, s) }));
+                    datasets.push({
+                        label: `${(spread/100).toFixed(2)}%`,
+                        data: data,
+                        borderColor: refColors[i],
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    });
+                }
+            });
+
+            // Current point marker
+            datasets.push({
+                label: 'Current Selection',
+                data: [{ x: currentMarketing, y: getContracts(currentSpread, currentMarketing) }],
+                borderColor: '#fff',
+                backgroundColor: '#22c55e',
+                pointRadius: 10,
+                pointStyle: 'circle',
+                showLine: false
+            });
+
+            chart.data.datasets = datasets;
+            chart.options.scales.y.title.text = 'Contracts';
+            chart.update();
+        }
+
+        function updateProfitChart() {
+            const datasets = [];
+
+            // Show net profit curves for different spreads
+            const profitSpreads = [1000, 1100, 1200, 1300, 1400, 1500, 1600];
+            const colors = ['#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444', '#991b1b'];
+
+            profitSpreads.forEach((spread, i) => {
+                const plp = calcPLP(spread);
+                const data = spendLevels.map(s => {
+                    const contracts = getContracts(spread, s);
+                    const netProfit = (contracts * plp) - (s * 1000000);
+                    return { x: s, y: netProfit / 1000000 };
+                });
+                datasets.push({
+                    label: `${(spread/100).toFixed(0)}% (PLP: $${(plp/1000).toFixed(1)}K)`,
+                    data: data,
+                    borderColor: colors[i],
+                    borderWidth: spread === Math.round(currentSpread / 100) * 100 ? 3 : 1.5,
+                    pointRadius: 0
+                });
+            });
+
+            // Zero line
+            datasets.push({
+                label: 'Breakeven',
+                data: [{ x: 0, y: 0 }, { x: 150, y: 0 }],
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                borderWidth: 1,
+                borderDash: [3, 3],
+                pointRadius: 0
+            });
+
+            // Current point
+            const currentContracts = getContracts(currentSpread, currentMarketing);
+            const currentPLP = calcPLP(currentSpread);
+            const currentNetProfit = (currentContracts * currentPLP) - (currentMarketing * 1000000);
+            datasets.push({
+                label: 'Current Selection',
+                data: [{ x: currentMarketing, y: currentNetProfit / 1000000 }],
+                borderColor: '#fff',
+                backgroundColor: currentNetProfit >= 0 ? '#22c55e' : '#f87171',
+                pointRadius: 10,
+                showLine: false
+            });
+
+            chart.data.datasets = datasets;
+            chart.options.scales.y.title.text = 'Net Profit ($M)';
+            chart.update();
+        }
+
+        function updateIsoChart() {
+            // Show iso-contract curves (combinations achieving same contracts)
+            const targetContracts = [15000, 20000, 25000, 30000];
+            const datasets = [];
+            const colors = ['#84cc16', '#eab308', '#f97316', '#ef4444'];
+
+            targetContracts.forEach((target, i) => {
+                const points = [];
+                for (let spread = 900; spread <= 1700; spread += 50) {
+                    // Find marketing spend needed for this target at this spread
+                    for (let m = 0; m <= 150; m += 1) {
+                        const c = getContracts(spread, m);
+                        if (c >= target) {
+                            points.push({ x: spread / 100, y: m });
+                            break;
+                        }
+                    }
+                }
+                if (points.length > 0) {
+                    datasets.push({
+                        label: `${target.toLocaleString()} contracts`,
+                        data: points,
+                        borderColor: colors[i],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    });
+                }
+            });
+
+            // Current point
+            datasets.push({
+                label: 'Current Selection',
+                data: [{ x: currentSpread / 100, y: currentMarketing }],
+                borderColor: '#fff',
+                backgroundColor: '#22c55e',
+                pointRadius: 10,
+                showLine: false
+            });
+
+            chart.data.datasets = datasets;
+            chart.options.scales.x.title.text = 'Spread (%)';
+            chart.options.scales.y.title.text = 'Marketing Spend ($M)';
+            chart.update();
+        }
+
+        function setChartMode(mode) {
+            chartMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+
+            document.getElementById('isoSection').style.display = mode === 'iso' ? 'block' : 'none';
+
+            // Reset axis labels for non-iso modes
+            if (mode !== 'iso') {
+                chart.options.scales.x.title.text = 'Marketing Spend ($M)';
+            }
+
+            updateChart();
+        }
+
+        function calculateIsoCurves() {
+            const targetInput = document.getElementById('targetContracts').value;
+            const target = parseInt(targetInput.replace(/,/g, ''));
+
+            if (isNaN(target) || target < 5000 || target > 50000) {
+                alert('Please enter a target between 5,000 and 50,000');
+                return;
+            }
+
+            // Find all combinations that achieve target
+            const combinations = [];
+            for (let spread = 900; spread <= 1800; spread += 50) {
+                for (let m = 0; m <= 150; m += 5) {
+                    const c = getContracts(spread, m);
+                    if (c >= target && c <= target * 1.05) { // Within 5% of target
+                        const plp = calcPLP(spread);
+                        const gross = c * plp;
+                        const net = gross - (m * 1000000);
+                        combinations.push({
+                            spread: spread,
+                            marketing: m,
+                            contracts: c,
+                            plp: plp,
+                            gross: gross,
+                            net: net
+                        });
+                        break; // Only first match per spread level
+                    }
+                }
+            }
+
+            // Sort by net profit descending
+            combinations.sort((a, b) => b.net - a.net);
+
+            // Render table
+            const tbody = document.getElementById('combinationsBody');
+            tbody.innerHTML = '';
+
+            if (combinations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#8892b0;">No achievable combinations found. Try a lower target.</td></tr>';
+                return;
+            }
+
+            const maxNet = combinations[0].net;
+            combinations.forEach((c, i) => {
+                const profitClass = c.net < 0 ? 'profit-negative' : c.net < 50000000 ? 'profit-warning' : 'profit-positive';
+                const plpClass = c.plp < 0 ? 'profit-negative' : c.plp < 3000 ? 'profit-warning' : 'profit-positive';
+                const rowClass = i === 0 ? 'best' : '';
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td>${(c.spread/100).toFixed(2)}%${c.spread < 1100 ? ' *' : ''}</td>
+                        <td>$${c.marketing}M</td>
+                        <td>${c.contracts.toLocaleString()}</td>
+                        <td class="${plpClass}">${c.plp >= 0 ? '$' + (c.plp/1000).toFixed(1) + 'K' : '-$' + (Math.abs(c.plp)/1000).toFixed(1) + 'K'}</td>
+                        <td class="${profitClass}">${formatProfit(c.gross)}</td>
+                        <td class="${profitClass}">${formatProfit(c.net)}${i === 0 ? ' ✓' : ''}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Event listeners
+        document.getElementById('spreadSlider').addEventListener('input', function() {
+            currentSpread = parseInt(this.value);
+            updateOutputs();
+        });
+
+        document.getElementById('marketingSlider').addEventListener('input', function() {
+            currentMarketing = parseInt(this.value);
+            updateOutputs();
+        });
+
+        document.getElementById('targetContracts').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateIsoCurves();
+        });
+
+        // Initialize
+        initChart();
+        updateOutputs();
+    </script>
+</body>
+</html>
