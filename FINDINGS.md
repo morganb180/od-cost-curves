@@ -40,6 +40,23 @@ Marketing spend shows **strong diminishing returns** - early dollars are 10x mor
 
 ---
 
+## ⭐ Marketing vs Spread Subsidy Allocation
+
+**Pricing partner economics:** $1M subsidy → 90 bps spread reduction → ~300 incremental contracts ($3,333/contract)
+
+The crossover point where subsidy beats marketing is around **$15M marketing spend**. Beyond that, marginal marketing dollars are less efficient than spread subsidies.
+
+| Budget Allocation | Amount | Rationale |
+|-------------------|--------|-----------|
+| Marketing | $15-20M | Stay in efficient zone (mCAC < $3.3K) |
+| Spread Subsidy | **$25-30M** | More efficient beyond crossover |
+
+**The ~$25M reallocation to pricing is roughly optimal** for a $45M total acquisition budget.
+
+See [ALLOCATION_ANALYSIS.md](ALLOCATION_ANALYSIS.md) for detailed math.
+
+---
+
 ## 1. Diminishing Returns on Marketing Spend
 
 At the current ~11.27% spread level (closest to 11.39% in model):
