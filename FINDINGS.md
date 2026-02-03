@@ -1,5 +1,24 @@
 # Marketing Cost Curves: Key Findings
 
+## Decision Summary (Feb 2026)
+
+**Optimal budget allocation for profitable acquisition growth:**
+
+| Parameter | Value |
+|-----------|-------|
+| Current spread | 11.27% |
+| Target spread | 9.75% |
+| Gap | 152 bps |
+| Subsidy rate | $1M/month → 90 bps reduction |
+| **Subsidy to pricing** | **$20M/year** |
+| **Marketing budget** | **$25M** |
+| **Total spend** | **$45M** |
+| Contracts (baseline) | ~24,500 (all-marketing at 11.27%) |
+| Contracts (hybrid) | ~27,000 (at 9.75%) |
+| **Incremental contracts** | **+2,500** |
+
+---
+
 ## Executive Summary
 
 Marketing spend shows **strong diminishing returns** - early dollars are 10x more efficient than late dollars. Spread levels have an **even larger impact** on contract volume than marketing spend, with a 500 bps spread reduction roughly doubling contracts at any spend level.
