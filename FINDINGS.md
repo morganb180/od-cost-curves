@@ -6,6 +6,40 @@ Marketing spend shows **strong diminishing returns** - early dollars are 10x mor
 
 ---
 
+## ⭐ Recommended Trade-off: 9.75% Spread + $45M Marketing
+
+**For profitable acquisition growth**, the optimal operating point is:
+
+| Parameter | Value |
+|-----------|-------|
+| **Spread** | ~9.75% (975 bps) |
+| **Marketing Spend** | $45M |
+| **Expected Contracts** | ~31,500 |
+| **PLP (Gross)** | ~$1,500/contract |
+| **Net Profit** | ~$2M (breakeven+) |
+
+### Why This Trade-off Works
+
+1. **Just above breakeven spread** (~10.0%): Operating at 9.75% keeps you marginally profitable while maximizing volume. The breakeven spread is ~10%, so 9.75% gives a small per-unit margin buffer.
+
+2. **Moderate marketing spend**: At $45M, you're in the "yellow zone" efficiency range - not yet hitting severe diminishing returns, but capturing significant incremental volume.
+
+3. **Volume maximization**: This combination yields ~31,500 contracts - substantially higher than conservative approaches (e.g., 11.75% spread + $40M → ~23,500 contracts).
+
+4. **Growth-oriented**: This trade-off prioritizes market share acquisition over per-unit profitability, appropriate for a growth phase strategy.
+
+### Trade-off Comparison
+
+| Strategy | Spread | Marketing | Contracts | PLP/Unit | Net Profit |
+|----------|--------|-----------|-----------|----------|------------|
+| **Growth Max** | 9.75% | $45M | ~31,500 | $1.5K | ~$2M |
+| Conservative | 11.75% | $40M | ~23,500 | $6.4K | ~$102M |
+| High Margin | 13.39% | $30M | ~15,750 | $12.6K | ~$169M |
+
+**Key insight:** The "Growth Max" strategy acquires **34% more contracts** than the conservative approach, trading off $100M in net profit for market share. This is the right trade-off when market position matters more than current profitability.
+
+---
+
 ## 1. Diminishing Returns on Marketing Spend
 
 At the current ~11.27% spread level (closest to 11.39% in model):
