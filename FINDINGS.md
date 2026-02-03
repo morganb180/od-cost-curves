@@ -42,18 +42,32 @@ Marketing spend shows **strong diminishing returns** - early dollars are 10x mor
 
 ## ⭐ Marketing vs Spread Subsidy Allocation
 
-**Pricing partner economics:** $1M subsidy → 90 bps spread reduction → ~300 incremental contracts ($3,333/contract)
+**Current state:** 11.27% spread | **Target:** 9.75% spread | **Gap:** 152 bps
 
-The crossover point where subsidy beats marketing is around **$15M marketing spend**. Beyond that, marginal marketing dollars are less efficient than spread subsidies.
+**Pricing partner economics:** $1M/month subsidy → 90 bps spread reduction
 
-| Budget Allocation | Amount | Rationale |
-|-------------------|--------|-----------|
-| Marketing | $15-20M | Stay in efficient zone (mCAC < $3.3K) |
-| Spread Subsidy | **$25-30M** | More efficient beyond crossover |
+### Recommended Budget Split ($45M total)
 
-**The ~$25M reallocation to pricing is roughly optimal** for a $45M total acquisition budget.
+| Allocation | Amount | What It Does |
+|------------|--------|--------------|
+| **Pricing subsidy** | **$20M** | Reduces spread 11.27% → 9.75% (152 bps) |
+| **Marketing** | **$25M** | Acquires contracts at efficient mCAC |
 
-See [ALLOCATION_ANALYSIS.md](ALLOCATION_ANALYSIS.md) for detailed math.
+### The Math
+
+- Gap: 152 bps ÷ 90 bps per $1M = **$1.69M/month**
+- Annualized: $1.69M × 12 = **~$20M/year**
+
+### Expected Impact
+
+| Metric | Value |
+|--------|-------|
+| Contracts at 11.27% + $25M marketing | ~22,000 |
+| Contracts at 9.75% + $25M marketing | ~27,000 |
+| **Extra contracts from subsidy** | **~5,000** |
+| Cost per extra contract | $20M ÷ 5,000 = **$4,000** |
+
+The $4K/contract via subsidy beats marginal marketing CAC at higher spend levels ($8-10K+), putting you on the efficient frontier.
 
 ---
 

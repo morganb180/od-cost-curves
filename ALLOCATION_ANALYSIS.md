@@ -6,103 +6,87 @@ You have two levers to acquire contracts:
 1. **Marketing spend** - advertising to drive seller leads
 2. **Spread subsidy** - better offers to convert more sellers
 
+## Current State
+
+| Metric | Value |
+|--------|-------|
+| Current spread | 11.27% (1127.39 bps) |
+| Target spread | 9.75% (975 bps) |
+| Gap | 152 bps |
+
 ## Pricing Partner's Subsidy Economics
 
 | Metric | Value |
 |--------|-------|
-| Subsidy per $1M | 90 bps spread reduction |
-| Incremental contracts per $1M | ~300 |
-| **Cost per contract via subsidy** | **$3,333** |
+| Subsidy per $1M/month | 90 bps spread reduction |
+| To close 152 bps gap | $1.69M/month |
+| **Annual subsidy cost** | **$20M** |
 
-At $375K ASP, 1 bp = $37.50/contract. So 90 bps = $3,375/contract.
+## Recommended Allocation ($45M Total Budget)
 
-## Marketing Efficiency by Spend Level
+| Allocation | Amount | What It Does |
+|------------|--------|--------------|
+| **Pricing subsidy** | **$20M** | Reduces spread 11.27% → 9.75% |
+| **Marketing** | **$25M** | Acquires contracts at efficient mCAC |
 
-At ~11.75% baseline spread:
+## The Math
 
-| Marketing Spend | Marginal Contracts/$1M | mCAC | vs Subsidy |
-|-----------------|------------------------|------|------------|
-| $0-5M | ~520 | $1.9K | Marketing wins |
-| $5-10M | ~420 | $2.4K | Marketing wins |
-| $10-15M | ~310 | $3.2K | **≈ Crossover** |
-| $15-20M | ~250 | $4.0K | Subsidy wins |
-| $20-30M | ~180 | $5.6K | Subsidy wins |
-| $30-50M | ~120 | $8.3K | Subsidy wins |
-| $50M+ | <100 | $10K+ | Subsidy wins |
+```
+Gap to close:     152 bps
+Rate:             90 bps per $1M/month
+Monthly cost:     152 ÷ 90 = $1.69M/month
+Annual cost:      $1.69M × 12 = ~$20M/year
+```
 
-## Recommended Allocation
+## Expected Impact
 
-**If targeting ~$45M total acquisition budget:**
+| Scenario | Contracts |
+|----------|-----------|
+| 11.27% spread + $25M marketing | ~22,000 |
+| 9.75% spread + $25M marketing | ~27,000 |
+| **Extra contracts from subsidy** | **~5,000** |
 
-| Allocation | Amount | Rationale |
-|------------|--------|-----------|
-| Marketing | **$15-20M** | Stay in efficient zone (mCAC < $3.3K) |
-| Spread Subsidy | **$25-30M** | More efficient beyond crossover |
+### Unit Economics
 
-### What This Achieves
+| Metric | Value |
+|--------|-------|
+| Subsidy spend | $20M |
+| Extra contracts | 5,000 |
+| **Cost per extra contract** | **$4,000** |
 
-**$25M subsidy impact:**
-- At ~30,000 expected contracts: $25M / 30,000 = $833/contract
-- Spread reduction: $833 / $37.50 = **~22 bps**
-- e.g., from 11.75% → 11.53% effective spread
+This $4K/contract via subsidy compares favorably to marginal marketing CAC at higher spend levels ($8-10K+).
 
-**Wait - that's only 22 bps, not the 200 bps to get to 9.75%...**
+## Why This Works
 
-## The Reality Check ⚠️
+1. **Subsidy is more efficient than marginal marketing** - At $25M+ marketing spend, mCAC exceeds $4K. Subsidy beats it.
 
-To reduce spread from 11.75% to 9.75% (200 bps) across 30,000 contracts:
-- Cost = 30,000 × 200 × $37.50 = **$225M**
+2. **Marketing stays in efficient zone** - The first $25M of marketing has mCAC under $4K. Keep spending there.
 
-This is the full margin cost of a 200 bps spread reduction at scale.
+3. **Spread unlocks volume** - The 152 bps reduction opens up ~5,000 incremental contracts that marketing alone couldn't reach efficiently.
 
-Your pricing partner's "$1M → 300 contracts" may represent:
-1. A specific market/segment, not company-wide
-2. Incremental contracts from spread reduction (not total)
-3. A different interpretation of the economics
+## Marketing Efficiency Reference
 
-## Revised Analysis: Marginal Reallocation
+At 9.75% spread (post-subsidy):
 
-If we interpret "$1M → 300 contracts" as **incremental contracts from spread reduction**:
+| Marketing Spend | Marginal Contracts/$1M | mCAC |
+|-----------------|------------------------|------|
+| $0-10M | ~500+ | <$2K |
+| $10-20M | ~350 | ~$2.9K |
+| $20-30M | ~250 | ~$4K |
+| $30M+ | <200 | >$5K |
 
-At the margin, compare:
-- **Marketing**: 100-150 contracts per $1M (at $40M+ spend level)
-- **Subsidy**: 300 contracts per $1M (per pricing partner)
-
-**Subsidy is 2-3x more efficient at the margin!**
-
-### Optimal Strategy
-
-Given $45M total budget:
-
-| Phase | Spend On | Amount | Cumulative Contracts |
-|-------|----------|--------|---------------------|
-| 1 | Marketing (efficient zone) | $15M | +3,500 |
-| 2 | Subsidy reallocation | $25M | +7,500 |
-| 3 | Marketing (moderate zone) | $5M | +800 |
-| **Total** | | **$45M** | **+11,800** |
-
-vs. all-marketing approach:
-| All Marketing | $45M | +6,000 |
-
-**The hybrid approach yields ~2x the incremental contracts!**
-
-## Sensitivity: What If Subsidy Contracts/$ Varies?
-
-| Subsidy Efficiency | Optimal Marketing | Optimal Subsidy |
-|--------------------|-------------------|-----------------|
-| 200 contracts/$1M | $20-25M | $20-25M |
-| 300 contracts/$1M | $15-20M | $25-30M |
-| 400 contracts/$1M | $10-15M | $30-35M |
-
-## Key Insight
-
-The **$25M to pricing** estimate is in the right ballpark if:
-- Subsidy yields ~300 contracts per $1M
-- You want to keep ~$15-20M in marketing for brand/awareness and efficient early-funnel spend
-- Total budget is ~$45M
-
-This shifts the operating point closer to the efficient frontier while recognizing that some marketing spend (the first $15-20M) is still more efficient than subsidy.
+With $25M marketing at 9.75% spread, you're staying in the efficient zone while the subsidy does the heavy lifting on volume.
 
 ---
 
-*Analysis based on GTM sensitivity model + pricing partner economics*
+## Summary
+
+**Give pricing $20M** to close the 152 bps spread gap (11.27% → 9.75%).
+
+**Keep $25M for marketing** in the efficient mCAC zone.
+
+**Result:** ~5,000 extra contracts at $4K/contract via subsidy, plus efficient marketing spend at the lower spread.
+
+---
+
+*Analysis based on GTM sensitivity model + pricing partner economics (90 bps per $1M/month)*
