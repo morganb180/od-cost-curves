@@ -1384,7 +1384,7 @@
         }
 
         function buildSensitivityTable() {
-            const budgets = [35, 40, 45, 50, 55, 60];
+            const budgets = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
             const tbody = document.getElementById('sensitivityBody');
             let html = '';
 
@@ -1408,26 +1408,26 @@
                     </tr>
                 `;
 
-                // Hybrid row
-                if (marketingHybrid >= 10) {
-                    html += `
-                        <tr style="background: rgba(34, 197, 94, 0.08);">
-                            <td style="text-align: left; font-weight: 500;">Hybrid</td>
-                            <td style="color: #f59e0b;">$${subsidyNeeded}M</td>
-                            <td>$${marketingHybrid}M</td>
-                            <td style="color: #4ade80;">9.75%</td>
-                            <td style="font-weight: 500;">${hybridContracts.toLocaleString()}</td>
-                            <td class="${deltaClass}" style="font-weight: 600;">${delta >= 0 ? '+' : ''}${delta.toLocaleString()}</td>
-                        </tr>
-                    `;
-                } else {
-                    html += `
-                        <tr style="background: rgba(248, 113, 113, 0.08);">
-                            <td style="text-align: left; color: #8892b0;">Hybrid</td>
-                            <td colspan="5" style="color: #8892b0; text-align: center;">Budget too low for $20M subsidy</td>
-                        </tr>
-                    `;
-                }
+                // Hybrid row - show partial subsidy if budget < $20M
+                const actualSubsidy = Math.min(subsidyNeeded, totalBudget);
+                const actualMarketing = totalBudget - actualSubsidy;
+                // Calculate achieved spread based on actual subsidy (90 bps per $1M/mo, $20M = 152 bps)
+                const bpsReduction = (actualSubsidy / subsidyNeeded) * 152;
+                const achievedSpread = currentSpread - bpsReduction;
+                const actualHybridContracts = getContractsForSpread(achievedSpread, actualMarketing);
+                const actualDelta = actualHybridContracts - marketingOnly;
+                const actualDeltaClass = actualDelta > 0 ? 'mcac-low' : (actualDelta < 0 ? 'mcac-high' : '');
+
+                html += `
+                    <tr style="background: rgba(34, 197, 94, 0.08);">
+                        <td style="text-align: left; font-weight: 500;">Hybrid</td>
+                        <td style="color: #f59e0b;">$${actualSubsidy}M</td>
+                        <td>$${actualMarketing}M</td>
+                        <td style="color: ${actualSubsidy >= subsidyNeeded ? '#4ade80' : '#facc15'};">${(achievedSpread / 100).toFixed(2)}%</td>
+                        <td style="font-weight: 500;">${actualHybridContracts.toLocaleString()}</td>
+                        <td class="${actualDeltaClass}" style="font-weight: 600;">${actualDelta >= 0 ? '+' : ''}${actualDelta.toLocaleString()}</td>
+                    </tr>
+                `;
             });
 
             tbody.innerHTML = html;
