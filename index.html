@@ -504,25 +504,24 @@
             <div class="table-header">
                 <div>
                     <div class="table-title">💡 Marketing vs Spread Subsidy: Budget Allocation Comparison</div>
-                    <div class="table-description">Compare all-marketing vs hybrid (marketing + subsidy to reach 9.75% spread). Current spread: 11.27%. Subsidy rate: $1M/mo → 90 bps. Subsidy needed: <strong style="color: #f59e0b;">$20M</strong> to close 152 bps gap.</div>
+                    <div class="table-description">Baseline: <strong>$45M all-marketing at 11.27% spread</strong>. How do hybrid allocations compare? Subsidy rate: $1M/mo → 90 bps.</div>
                 </div>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Total Budget</th>
-                        <th style="text-align: left;">Strategy</th>
-                        <th>Subsidy</th>
                         <th>Marketing</th>
+                        <th>Subsidy</th>
+                        <th>Total Spend</th>
                         <th>Spread</th>
                         <th>Contracts</th>
-                        <th>Delta</th>
+                        <th>Delta vs Baseline</th>
                     </tr>
                 </thead>
                 <tbody id="sensitivityBody"></tbody>
             </table>
             <div style="margin-top: 16px; padding: 16px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; font-size: 14px;">
-                <strong style="color: #4ade80;">Key Insight:</strong> At $45M total budget, the hybrid approach ($20M subsidy + $25M marketing) yields <strong>~2,500 more contracts</strong> than all-marketing at 11.27% spread. The subsidy effectively acquires contracts at ~$8K each—better than marginal marketing CAC at high spend levels.
+                <strong style="color: #4ade80;">Key Insight:</strong> Reallocating $20M from marketing to subsidy ($25M mktg + $20M subsidy) yields <strong>~2,500 more contracts</strong> at the same $45M total spend. The subsidy effectively acquires contracts at ~$8K each—better than marginal marketing CAC.
             </div>
         </div>
     </div>
@@ -1384,48 +1383,46 @@
         }
 
         function buildSensitivityTable() {
-            const budgets = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
             const tbody = document.getElementById('sensitivityBody');
             let html = '';
 
-            budgets.forEach(totalBudget => {
-                const marketingOnly = getContractsForSpread(currentSpread, totalBudget);
-                const marketingHybrid = totalBudget - subsidyNeeded;
-                const hybridContracts = marketingHybrid > 0 ? getContractsForSpread(targetSpread, marketingHybrid) : 0;
-                const delta = hybridContracts - marketingOnly;
+            // Baseline: $45M all-marketing at 11.27%
+            const baselineMarketing = 45;
+            const baselineContracts = getContractsForSpread(currentSpread, baselineMarketing);
+
+            // Baseline row
+            html += `
+                <tr style="background: rgba(255, 255, 255, 0.05);">
+                    <td><strong>$45M</strong></td>
+                    <td>$0</td>
+                    <td>$45M</td>
+                    <td>11.27%</td>
+                    <td><strong>${baselineContracts.toLocaleString()}</strong></td>
+                    <td style="color: #8892b0;">Baseline</td>
+                </tr>
+            `;
+
+            // Hybrid allocations: vary marketing from $10M to $60M, subsidy fills the gap to 9.75%
+            const marketingLevels = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+
+            marketingLevels.forEach(marketing => {
+                const totalSpend = marketing + subsidyNeeded;
+                const hybridContracts = getContractsForSpread(targetSpread, marketing);
+                const delta = hybridContracts - baselineContracts;
                 const deltaClass = delta > 0 ? 'mcac-low' : (delta < 0 ? 'mcac-high' : '');
 
-                // All Marketing row
-                html += `
-                    <tr>
-                        <td style="text-align: left;" rowspan="2"><strong>$${totalBudget}M</strong></td>
-                        <td style="text-align: left;">All Marketing</td>
-                        <td>$0</td>
-                        <td>$${totalBudget}M</td>
-                        <td>11.27%</td>
-                        <td>${marketingOnly.toLocaleString()}</td>
-                        <td>—</td>
-                    </tr>
-                `;
-
-                // Hybrid row - show partial subsidy if budget < $20M
-                const actualSubsidy = Math.min(subsidyNeeded, totalBudget);
-                const actualMarketing = totalBudget - actualSubsidy;
-                // Calculate achieved spread based on actual subsidy (90 bps per $1M/mo, $20M = 152 bps)
-                const bpsReduction = (actualSubsidy / subsidyNeeded) * 152;
-                const achievedSpread = currentSpread - bpsReduction;
-                const actualHybridContracts = getContractsForSpread(achievedSpread, actualMarketing);
-                const actualDelta = actualHybridContracts - marketingOnly;
-                const actualDeltaClass = actualDelta > 0 ? 'mcac-low' : (actualDelta < 0 ? 'mcac-high' : '');
+                // Highlight the $25M marketing row (recommended)
+                const isRecommended = marketing === 25;
+                const rowStyle = isRecommended ? 'background: rgba(34, 197, 94, 0.15);' : '';
 
                 html += `
-                    <tr style="background: rgba(34, 197, 94, 0.08);">
-                        <td style="text-align: left; font-weight: 500;">Hybrid</td>
-                        <td style="color: #f59e0b;">$${actualSubsidy}M</td>
-                        <td>$${actualMarketing}M</td>
-                        <td style="color: ${actualSubsidy >= subsidyNeeded ? '#4ade80' : '#facc15'};">${(achievedSpread / 100).toFixed(2)}%</td>
-                        <td style="font-weight: 500;">${actualHybridContracts.toLocaleString()}</td>
-                        <td class="${actualDeltaClass}" style="font-weight: 600;">${actualDelta >= 0 ? '+' : ''}${actualDelta.toLocaleString()}</td>
+                    <tr style="${rowStyle}">
+                        <td>${isRecommended ? '<strong>' : ''}$${marketing}M${isRecommended ? '</strong>' : ''}</td>
+                        <td style="color: #f59e0b;">$${subsidyNeeded}M</td>
+                        <td>$${totalSpend}M</td>
+                        <td style="color: #4ade80;">9.75%</td>
+                        <td>${isRecommended ? '<strong>' : ''}${hybridContracts.toLocaleString()}${isRecommended ? '</strong>' : ''}</td>
+                        <td class="${deltaClass}" style="font-weight: 600;">${delta >= 0 ? '+' : ''}${delta.toLocaleString()}</td>
                     </tr>
                 `;
             });
