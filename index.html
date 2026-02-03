@@ -466,6 +466,50 @@
             </div>
         </div>
 
+        <!-- Budget Allocation Comparison -->
+        <div class="table-section" style="margin-top: 24px;">
+            <div class="table-header">
+                <div>
+                    <div class="table-title">💡 Budget Allocation: Marketing vs Spread Subsidy</div>
+                    <div class="table-description">Compare all-marketing approach vs hybrid (marketing + spread subsidy). Subsidy rate: $1M/mo → 90 bps spread reduction.</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+                <div class="control-group">
+                    <label class="control-label">Total Budget ($M)</label>
+                    <input type="range" id="totalBudgetSlider" min="20" max="80" value="45" step="5" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #8892b0;">
+                        <span>$20M</span>
+                        <span id="totalBudgetDisplay" style="color: #fff; font-weight: 600;">$45M</span>
+                        <span>$80M</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Current Spread (%)</label>
+                    <input type="range" id="currentSpreadSlider" min="1000" max="1300" value="1127" step="10" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #8892b0;">
+                        <span>10.0%</span>
+                        <span id="currentSpreadDisplay" style="color: #fff; font-weight: 600;">11.27%</span>
+                        <span>13.0%</span>
+                    </div>
+                </div>
+            </div>
+            <table id="allocationTable">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Strategy</th>
+                        <th>Subsidy</th>
+                        <th>Marketing</th>
+                        <th>Spread</th>
+                        <th>Contracts</th>
+                        <th>Delta</th>
+                    </tr>
+                </thead>
+                <tbody id="allocationBody"></tbody>
+            </table>
+            <div id="allocationInsight" style="margin-top: 16px; padding: 16px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; font-size: 14px;"></div>
+        </div>
+
         <div class="chart-section">
             <div class="chart-header">
                 <div>
@@ -1300,6 +1344,140 @@
             originalRemoveCustomSpread(spreadBps);
             if (devModeEnabled) updateCustomSpreadDebug();
         };
+
+        // Budget Allocation Comparison
+        const targetSpread = 975; // 9.75% - optimal growth target
+        const subsidyRateBpsPerMillion = 90; // $1M/mo → 90 bps
+
+        function getContractsForSpread(spreadBps, marketingM) {
+            // Find bracketing spreads and interpolate
+            let lowerIdx = 0, upperIdx = 1;
+            for (let i = 0; i < spreadLevels.length - 1; i++) {
+                if (spreadBps >= spreadLevels[i] && spreadBps <= spreadLevels[i + 1]) {
+                    lowerIdx = i;
+                    upperIdx = i + 1;
+                    break;
+                }
+                if (spreadBps < spreadLevels[0]) { lowerIdx = 0; upperIdx = 1; break; }
+                if (spreadBps > spreadLevels[spreadLevels.length - 1]) {
+                    lowerIdx = spreadLevels.length - 2;
+                    upperIdx = spreadLevels.length - 1;
+                    break;
+                }
+            }
+
+            const lowerSpread = spreadLevels[lowerIdx];
+            const upperSpread = spreadLevels[upperIdx];
+            const t = (spreadBps - lowerSpread) / (upperSpread - lowerSpread);
+
+            // Find marketing spend index
+            const spendIdx = spendLevels5M.indexOf(marketingM);
+            if (spendIdx === -1) {
+                // Interpolate marketing too
+                let lowerSpendIdx = 0;
+                for (let i = 0; i < spendLevels5M.length - 1; i++) {
+                    if (marketingM >= spendLevels5M[i] && marketingM <= spendLevels5M[i + 1]) {
+                        lowerSpendIdx = i;
+                        break;
+                    }
+                }
+                const upperSpendIdx = Math.min(lowerSpendIdx + 1, spendLevels5M.length - 1);
+                const tSpend = (marketingM - spendLevels5M[lowerSpendIdx]) / (spendLevels5M[upperSpendIdx] - spendLevels5M[lowerSpendIdx] || 1);
+
+                const c00 = interpolatedData[lowerSpread][lowerSpendIdx];
+                const c01 = interpolatedData[lowerSpread][upperSpendIdx];
+                const c10 = interpolatedData[upperSpread][lowerSpendIdx];
+                const c11 = interpolatedData[upperSpread][upperSpendIdx];
+
+                const cLower = c00 + (c01 - c00) * tSpend;
+                const cUpper = c10 + (c11 - c10) * tSpend;
+                return Math.round(cLower + (cUpper - cLower) * t);
+            }
+
+            const lowerContracts = interpolatedData[lowerSpread][spendIdx];
+            const upperContracts = interpolatedData[upperSpread][spendIdx];
+            return Math.round(lowerContracts + (upperContracts - lowerContracts) * t);
+        }
+
+        function updateAllocationTable() {
+            const totalBudget = parseInt(document.getElementById('totalBudgetSlider').value);
+            const currentSpread = parseInt(document.getElementById('currentSpreadSlider').value);
+
+            document.getElementById('totalBudgetDisplay').textContent = '$' + totalBudget + 'M';
+            document.getElementById('currentSpreadDisplay').textContent = (currentSpread / 100).toFixed(2) + '%';
+
+            // Calculate gap to target spread (9.75%)
+            const gapBps = currentSpread - targetSpread;
+
+            // Calculate subsidy needed: gap / 90 bps per $1M/mo * 12 months
+            const subsidyNeeded = gapBps > 0 ? Math.round((gapBps / subsidyRateBpsPerMillion) * 12) : 0;
+            const subsidyActual = Math.min(subsidyNeeded, totalBudget - 10); // Keep at least $10M for marketing
+            const marketingHybrid = totalBudget - subsidyActual;
+
+            // Calculate achieved spread with actual subsidy
+            const achievedSpreadReduction = (subsidyActual / 12) * subsidyRateBpsPerMillion;
+            const achievedSpread = Math.max(currentSpread - achievedSpreadReduction, targetSpread);
+
+            // Strategy 1: All marketing at current spread
+            const contractsAllMarketing = getContractsForSpread(currentSpread, totalBudget);
+
+            // Strategy 2: Hybrid - subsidy + marketing at lower spread
+            const contractsHybrid = getContractsForSpread(achievedSpread, marketingHybrid);
+
+            const delta = contractsHybrid - contractsAllMarketing;
+            const deltaClass = delta > 0 ? 'mcac-low' : (delta < 0 ? 'mcac-high' : '');
+
+            const tbody = document.getElementById('allocationBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td style="text-align: left;">All Marketing</td>
+                    <td>$0</td>
+                    <td>$${totalBudget}M</td>
+                    <td>${(currentSpread / 100).toFixed(2)}%</td>
+                    <td>${contractsAllMarketing.toLocaleString()}</td>
+                    <td>—</td>
+                </tr>
+                <tr style="background: rgba(34, 197, 94, 0.1);">
+                    <td style="text-align: left; font-weight: 600;">Hybrid (Recommended)</td>
+                    <td style="color: #f59e0b; font-weight: 600;">$${subsidyActual}M</td>
+                    <td>$${marketingHybrid}M</td>
+                    <td style="color: #4ade80;">${(achievedSpread / 100).toFixed(2)}%</td>
+                    <td style="font-weight: 600;">${contractsHybrid.toLocaleString()}</td>
+                    <td class="${deltaClass}" style="font-weight: 600;">${delta >= 0 ? '+' : ''}${delta.toLocaleString()}</td>
+                </tr>
+            `;
+
+            // Update insight
+            const insightEl = document.getElementById('allocationInsight');
+            if (delta > 0) {
+                const costPerExtra = subsidyActual > 0 ? Math.round((subsidyActual * 1000000) / delta) : 0;
+                insightEl.innerHTML = `
+                    <strong style="color: #4ade80;">✓ Hybrid wins:</strong> Same $${totalBudget}M budget yields <strong>+${delta.toLocaleString()} contracts</strong>
+                    by giving <strong>$${subsidyActual}M to pricing</strong> to reduce spread from ${(currentSpread/100).toFixed(2)}% → ${(achievedSpread/100).toFixed(2)}%.
+                    ${subsidyActual > 0 ? `<br><span style="color: #8892b0; font-size: 13px;">Effective cost: $${(costPerExtra/1000).toFixed(1)}K per incremental contract via subsidy.</span>` : ''}
+                `;
+                insightEl.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                insightEl.style.background = 'rgba(34, 197, 94, 0.1)';
+            } else if (delta < 0) {
+                insightEl.innerHTML = `
+                    <strong style="color: #f87171;">✗ All-marketing wins:</strong> At this budget/spread combination, marketing is more efficient.
+                    Keep full budget in marketing.
+                `;
+                insightEl.style.borderColor = 'rgba(248, 113, 113, 0.3)';
+                insightEl.style.background = 'rgba(248, 113, 113, 0.1)';
+            } else {
+                insightEl.innerHTML = `<strong style="color: #facc15;">≈ Break-even:</strong> Both strategies yield similar results at this configuration.`;
+                insightEl.style.borderColor = 'rgba(250, 204, 21, 0.3)';
+                insightEl.style.background = 'rgba(250, 204, 21, 0.1)';
+            }
+        }
+
+        // Event listeners for allocation sliders
+        document.getElementById('totalBudgetSlider').addEventListener('input', updateAllocationTable);
+        document.getElementById('currentSpreadSlider').addEventListener('input', updateAllocationTable);
+
+        // Initial update
+        updateAllocationTable();
     </script>
 </body>
 </html>

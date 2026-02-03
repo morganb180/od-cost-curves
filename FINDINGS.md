@@ -58,16 +58,17 @@ Marketing spend shows **strong diminishing returns** - early dollars are 10x mor
 - Gap: 152 bps ÷ 90 bps per $1M = **$1.69M/month**
 - Annualized: $1.69M × 12 = **~$20M/year**
 
-### Expected Impact
+### Expected Impact (Same $45M Budget)
 
-| Metric | Value |
-|--------|-------|
-| Contracts at 11.27% + $25M marketing | ~22,000 |
-| Contracts at 9.75% + $25M marketing | ~27,000 |
-| **Extra contracts from subsidy** | **~5,000** |
-| Cost per extra contract | $20M ÷ 5,000 = **$4,000** |
+| Strategy | Subsidy | Marketing | Spread | Contracts |
+|----------|---------|-----------|--------|-----------|
+| All marketing | $0 | $45M | 11.27% | ~24,500 |
+| **Hybrid** | **$20M** | **$25M** | **9.75%** | **~27,000** |
+| **Delta** | | | | **+2,500** |
 
-The $4K/contract via subsidy beats marginal marketing CAC at higher spend levels ($8-10K+), putting you on the efficient frontier.
+**Same budget, ~2,500 more contracts** by reallocating $20M from marketing to spread subsidy.
+
+The hybrid approach works because marginal marketing dollars (beyond ~$25M) have mCAC of $8-10K+, while the subsidy effectively acquires contracts at ~$8K ($20M ÷ 2,500).
 
 ---
 
